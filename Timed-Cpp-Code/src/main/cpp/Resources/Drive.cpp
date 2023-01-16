@@ -86,13 +86,13 @@ void Robot::DriveInit()
     if (!flip) m_robotDrive.ArcadeDrive(PS4Controller.GetLeftX()*.2,PS4Controller.GetLeftY()*.2,false);
     else m_robotDrive.ArcadeDrive(PS4Controller.GetLeftX()*.2,-PS4Controller.GetLeftY()*.2,false);
     }
-       
+         
    else{ 
-    if (!flip) m_robotDrive.ArcadeDrive(PS4Controller.GetLeftX()*.4,PS4Controller.GetLeftY()*.2,false);
-    else m_robotDrive.ArcadeDrive(PS4Controller.GetLeftX()*.4,-PS4Controller.GetLeftY()*.2,false);
+    if (!flip) m_robotDrive.ArcadeDrive(PS4Controller.GetLeftX()*.4,PS4Controller.GetLeftY()*.4,false);
+    else m_robotDrive.ArcadeDrive(PS4Controller.GetLeftX()*.5,-PS4Controller.GetLeftY()*.5,false);
     }
 
     if(PS4Controller.GetTouchpadReleased()){
-        flip = true;
+        flip = !flip;
     }
 }
