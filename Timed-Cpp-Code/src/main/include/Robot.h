@@ -16,6 +16,8 @@
 #include <frc/PneumaticsModuleType.h>
 
 #include <rev/CANSparkMax.h>
+#include <ctre/phoenix/motorcontrol/can/TalonSRX.h>
+#include <ctre/phoenix/motorcontrol/ControlMode.h>
 
 
 class Robot : public frc::TimedRobot {
@@ -36,11 +38,12 @@ class Robot : public frc::TimedRobot {
 
 
  private:
-  static const int leftLeadDeviceID = 51, leftFollowDeviceID = 52, rightLeadDeviceID = 50, rightFollowDeviceID = 53;
+  static const int leftLeadDeviceID = 51, leftFollowDeviceID = 52, rightLeadDeviceID = 50, rightFollowDeviceID = 53, centerMotorID = 1;
   rev::CANSparkMax m_leftLeadMotor{leftLeadDeviceID, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANSparkMax m_rightLeadMotor{rightLeadDeviceID, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANSparkMax m_leftFollowMotor{leftFollowDeviceID, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANSparkMax m_rightFollowMotor{rightFollowDeviceID, rev::CANSparkMax::MotorType::kBrushless};
+  ctre::phoenix::motorcontrol::can::TalonSRX     center_motor{centerMotorID};
 
   frc::DifferentialDrive m_robotDrive{m_leftLeadMotor, m_rightLeadMotor};
 

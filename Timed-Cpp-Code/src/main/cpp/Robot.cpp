@@ -13,20 +13,17 @@
 void Robot::RobotPeriodic() {}
 
   void Robot::RobotInit() {
-
     m_leftLeadMotor.RestoreFactoryDefaults();
     m_rightLeadMotor.RestoreFactoryDefaults();
     m_leftFollowMotor.RestoreFactoryDefaults();
     m_rightFollowMotor.RestoreFactoryDefaults();
-    
 
     m_leftFollowMotor.Follow(m_leftLeadMotor);
     m_rightFollowMotor.Follow(m_rightLeadMotor);
   }
 
   void Robot::TeleopPeriodic() {
-    // Drive with arcade style
-    m_robotDrive.ArcadeDrive(PS4Controller.GetLeftY(), PS4Controller.GetLeftX());
+    m_robotDrive.ArcadeDrive(PS4Controller.GetLeftY(), -PS4Controller.GetLeftX(),true);
   }
 void Robot::AutonomousInit() {}
 
