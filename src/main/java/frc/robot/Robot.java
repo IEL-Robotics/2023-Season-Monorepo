@@ -28,6 +28,8 @@ public class Robot extends TimedRobot {
 
   private PS4Controller driverController = new PS4Controller(0);
 
+  private int flipVar = -1;
+
 
   @Override
   public void robotInit() {
@@ -65,11 +67,17 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {}
 
+  public void flipDirection() {
+    if(flipVar == 1 && driverController.getRawButtonReleased(14)){flipVar = -1;}
+    else if(flipVar == -1 && driverController.getRawButtonReleased(14)){flipVar = 1;}
+  }
+
   public void driveFunctions() {
+    flipDirection();
 
     drive.setMaxOutput(Constants.ChassisConstants.lowerOutput);
     if(driverController.getRawButtonPressed(6)){drive.setMaxOutput(Constants.ChassisConstants.higherOutput);}
-    drive.arcadeDrive(-driverController.getLeftX() * 0.5, -driverController.getLeftY());
+    drive.arcadeDrive(-driverController.getLeftX() * .8, flipVar * driverController.getLeftY());
 
     midMaster.set(TalonSRXControlMode.PercentOutput, driverController.getRightX());
 
