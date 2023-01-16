@@ -92,7 +92,7 @@ void Robot::RobotPeriodic() {}
 
     m_pidControllerR1.SetReference(0, rev::CANSparkMax::ControlType::kSmartMotion);
     m_pidControllerL1.SetReference(0, rev::CANSparkMax::ControlType::kSmartMotion);
-    m_robotDrive.ArcadeDrive((double)filter.Calculate((units::unit_t<double, double, units::linear_scale>)SetPoint), PS4Controller.GetLeftY()*.3);
+    m_robotDrive.ArcadeDrive((SetPoint), PS4Controller.GetLeftY()*.3);
   }
 void Robot::AutonomousInit() {}
 

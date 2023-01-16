@@ -58,8 +58,6 @@ class Robot : public frc::TimedRobot {
   rev::SparkMaxPIDController m_pidControllerR1 = m_rightLeadMotor.GetPIDController();
   rev::SparkMaxPIDController m_pidControllerR2 = m_rightFollowMotor.GetPIDController();
 
-  frc::SlewRateLimiter<units::unit_t<double, double, units::linear_scale>> filter{ 400 / 1_s};
-
   frc::DifferentialDrive m_robotDrive{m_leftLeadMotor, m_rightLeadMotor};
 
   frc::PS4Controller PS4Controller{0};
