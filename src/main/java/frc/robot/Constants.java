@@ -9,8 +9,8 @@ public class Constants {
         public final static int idMidMaster = 0;
         public final static int idMidSlave = 0;
 
-        public final static double lowerOutput = 0.3;
-        public final static double higherOutput = 0.6;
+        public final static double lowerOutput = 0.4;
+        public final static double higherOutput = 0.8;
 
         public final static int maxVel = 2000;
         public final static int maxAcc = 1500;

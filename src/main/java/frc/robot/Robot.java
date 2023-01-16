@@ -9,6 +9,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import frc.robot.Constants.ChassisConstants;
 
 
 public class Robot extends TimedRobot {
@@ -75,11 +76,12 @@ public class Robot extends TimedRobot {
   public void driveFunctions() {
     flipDirection();
 
-    drive.setMaxOutput(Constants.ChassisConstants.lowerOutput);
-    if(driverController.getRawButtonPressed(6)){drive.setMaxOutput(Constants.ChassisConstants.higherOutput);}
-    drive.arcadeDrive(-driverController.getLeftX() * .8, flipVar * driverController.getLeftY());
+    double outputConstant = Constants.ChassisConstants.lowerOutput;
 
-    midMaster.set(TalonSRXControlMode.PercentOutput, driverController.getRightX());
+    if(driverController.getRawButton(6)){outputConstant = ChassisConstants.higherOutput;}
+    drive.arcadeDrive(-driverController.getLeftX() * .8 * outputConstant, flipVar * driverController.getLeftY() * outputConstant);
+
+    midMaster.set(TalonSRXControlMode.PercentOutput, driverController.getRightX() * .5);
 
   }
 
