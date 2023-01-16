@@ -3,7 +3,6 @@
 // the WPILib BSD license file in the root directory of this project.
 
 #include "Robot.h"
-#include "Constants.h"
 
 #include <fmt/core.h>
 
@@ -15,11 +14,11 @@
 void Robot::RobotPeriodic() {}
 
   void Robot::RobotInit() {
-    DriveInit();
+    Robot::DriveInit();
   }
 
   void Robot::TeleopPeriodic() {
-    DrivePeriodic();
+    Robot::DrivePeriodic();
   }
 void Robot::AutonomousInit() {}
 
