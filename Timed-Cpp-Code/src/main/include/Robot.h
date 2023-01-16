@@ -11,6 +11,7 @@
 #include <frc/controller/PIDController.h>
 #include <frc/drive/DifferentialDrive.h>
 #include <frc/motorcontrol/PWMVictorSPX.h>
+#include <frc/filter/SlewRateLimiter.h>
 
 #include <frc/DoubleSolenoid.h>
 #include <frc/PneumaticsModuleType.h>
@@ -39,11 +40,25 @@ class Robot : public frc::TimedRobot {
 
  private:
   static const int leftLeadDeviceID = 51, leftFollowDeviceID = 52, rightLeadDeviceID = 50, rightFollowDeviceID = 53, centerMotorID = 1;
+  // Add motors
   rev::CANSparkMax m_leftLeadMotor{leftLeadDeviceID, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANSparkMax m_rightLeadMotor{rightLeadDeviceID, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANSparkMax m_leftFollowMotor{leftFollowDeviceID, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANSparkMax m_rightFollowMotor{rightFollowDeviceID, rev::CANSparkMax::MotorType::kBrushless};
   ctre::phoenix::motorcontrol::can::TalonSRX     center_motor{centerMotorID};
+
+  // Add encoders 
+  rev::SparkMaxRelativeEncoder m_encoderL1 = m_leftLeadMotor.GetEncoder();
+  rev::SparkMaxRelativeEncoder m_encoderL2 = m_leftFollowMotor.GetEncoder();
+  rev::SparkMaxRelativeEncoder m_encoderR1 = m_rightLeadMotor.GetEncoder();
+  rev::SparkMaxRelativeEncoder m_encoderR2 = m_rightFollowMotor.GetEncoder();
+
+  rev::SparkMaxPIDController m_pidControllerL1 = m_leftLeadMotor.GetPIDController();
+  rev::SparkMaxPIDController m_pidControllerL2 = m_leftFollowMotor.GetPIDController();
+  rev::SparkMaxPIDController m_pidControllerR1 = m_rightLeadMotor.GetPIDController();
+  rev::SparkMaxPIDController m_pidControllerR2 = m_rightFollowMotor.GetPIDController();
+
+  frc::SlewRateLimiter<units::unit_t<double, double, units::linear_scale>> filter{ 400 / 1_s};
 
   frc::DifferentialDrive m_robotDrive{m_leftLeadMotor, m_rightLeadMotor};
 
