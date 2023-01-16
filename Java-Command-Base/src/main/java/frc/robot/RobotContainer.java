@@ -5,7 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Drive;
+import frc.robot.commands.Chassis.TeleopDrive;
 import frc.robot.subsystems.Chassis;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
@@ -25,7 +25,7 @@ public class RobotContainer {
   private final CommandPS4Controller m_driverController =
       new CommandPS4Controller(OperatorConstants.kDriverControllerPort);
   public final Chassis m_chassis = new Chassis();
-  private final Command m_teleopCommand = new Drive(m_chassis, m_driverController);
+  private final Command m_teleopCommand = new TeleopDrive(m_chassis, m_driverController);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
