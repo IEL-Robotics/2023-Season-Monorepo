@@ -36,17 +36,21 @@ class Robot : public frc::TimedRobot {
   void SimulationInit() override;
   void SimulationPeriodic() override;
 
+  void DriveInit();
+  void DrivePeriodic();
+
 
 
  private:
-  static const int leftLeadDeviceID = 51, leftFollowDeviceID = 52, rightLeadDeviceID = 50, rightFollowDeviceID = 53, centerMotorID = 1;
+  static const int leftLeadDeviceID = 51, leftFollowDeviceID = 52, rightLeadDeviceID = 50, rightFollowDeviceID = 53, centerMotorLeadID = 1, centerMotorFollowID = 1;
   // Add motors
   rev::CANSparkMax m_leftLeadMotor{leftLeadDeviceID, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANSparkMax m_rightLeadMotor{rightLeadDeviceID, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANSparkMax m_leftFollowMotor{leftFollowDeviceID, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANSparkMax m_rightFollowMotor{rightFollowDeviceID, rev::CANSparkMax::MotorType::kBrushless};
-  ctre::phoenix::motorcontrol::can::TalonSRX     center_motor{centerMotorID};
-
+  ctre::phoenix::motorcontrol::can::TalonSRX     center_motor_lead{centerMotorLeadID};
+  ctre::phoenix::motorcontrol::can::TalonSRX     center_motor_follow{centerMotorFollowID};
+  bool flip = false;
   // Add encoders 
   rev::SparkMaxRelativeEncoder m_encoderL1 = m_leftLeadMotor.GetEncoder();
   rev::SparkMaxRelativeEncoder m_encoderL2 = m_leftFollowMotor.GetEncoder();

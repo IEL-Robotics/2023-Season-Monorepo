@@ -3,4 +3,4 @@
 
     // motor max RPM
   const double MaxRPM = 2000;
-  const double MaxAccel = 1000;
+  const double MaxAccel = 500;
