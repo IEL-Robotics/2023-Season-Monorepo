@@ -76,7 +76,7 @@ public class Robot extends TimedRobot {
   public void driveFunctions() {
     flipDirection();
 
-    double outputConstant = Constants.ChassisConstants.lowerOutput;
+    double outputConstant = Constants.ChassisConstants.lowerOutput; //later change to SetMaxOutput()
 
     if(driverController.getRawButton(6)){outputConstant = ChassisConstants.higherOutput;}
     drive.arcadeDrive(-driverController.getLeftX() * .8 * outputConstant, flipVar * driverController.getLeftY() * outputConstant);
