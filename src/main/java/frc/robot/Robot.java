@@ -31,7 +31,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    leftMaster.setInverted(true); // Should I also add follower motors here?
+    leftMaster.setInverted(true);
     rightMaster.setInverted(true);
     midMaster.setInverted(false);
 
@@ -62,7 +62,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {}
-
   @Override
   public void teleopInit() {}
 
