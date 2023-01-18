@@ -21,12 +21,12 @@ void Robot::DriveInit()
     m_pidControllerL1.SetFF(kFF);
     m_pidControllerL1.SetOutputRange(kMinOutput, kMaxOutput);
 
-    // m_pidControllerL2.SetP(kP);
-    // m_pidControllerL2.SetI(kI);
-    // m_pidControllerL2.SetD(kD);
-    // m_pidControllerL2.SetIZone(kIz);
-    // m_pidControllerL2.SetFF(kFF);
-    // m_pidControllerL2.SetOutputRange(kMinOutput, kMaxOutput);
+    m_pidControllerL2.SetP(kP);
+    m_pidControllerL2.SetI(kI);
+    m_pidControllerL2.SetD(kD);
+    m_pidControllerL2.SetIZone(kIz);
+    m_pidControllerL2.SetFF(kFF);
+    m_pidControllerL2.SetOutputRange(kMinOutput, kMaxOutput);
 
     m_pidControllerR1.SetP(kP);
     m_pidControllerR1.SetI(kI);
@@ -35,12 +35,12 @@ void Robot::DriveInit()
     m_pidControllerR1.SetFF(kFF);
     m_pidControllerR1.SetOutputRange(kMinOutput, kMaxOutput);
 
-    // m_pidControllerR2.SetP(kP);
-    // m_pidControllerR2.SetI(kI);
-    // m_pidControllerR2.SetD(kD);
-    // m_pidControllerR2.SetIZone(kIz);
-    // m_pidControllerR2.SetFF(kFF);
-    // m_pidControllerR2.SetOutputRange(kMinOutput, kMaxOutput);
+    m_pidControllerR2.SetP(kP);
+    m_pidControllerR2.SetI(kI);
+    m_pidControllerR2.SetD(kD);
+    m_pidControllerR2.SetIZone(kIz);
+    m_pidControllerR2.SetFF(kFF);
+    m_pidControllerR2.SetOutputRange(kMinOutput, kMaxOutput);
   }
 
   void Robot::DrivePeriodic() {
@@ -86,7 +86,7 @@ void Robot::DriveInit()
    if(!PS4Controller.GetCircleButton()){ 
     // if (!flip) m_robotDrive.ArcadeDrive(PS4Controller.GetLeftX()*.2,PS4Controller.GetLeftY()*.2,false);
     // else
-          m_robotDrive.ArcadeDrive(PS4Controller.GetLeftX()*.17,(PS4Controller.GetL2Axis()-PS4Controller.GetR2Axis())*.17,false);
+          m_robotDrive.ArcadeDrive(PS4Controller.GetLeftX()*.17,(PS4Controller.GetR2Axis()-PS4Controller.GetL2Axis())*.17,false);
     center_motor_lead.Set(ctre::phoenix::motorcontrol::ControlMode::PercentOutput
 ,PS4Controller.GetRightX() );
     }
@@ -94,7 +94,7 @@ void Robot::DriveInit()
    else{ 
     // if (!flip) m_robotDrive.ArcadeDrive(PS4Controller.GetLeftX()*.4,PS4Controller.GetLeftY()*.4,false);
     // else
-          m_robotDrive.ArcadeDrive(PS4Controller.GetLeftX()*.4,(PS4Controller.GetL2Axis()-PS4Controller.GetL2Axis())*.4,false);
+          m_robotDrive.ArcadeDrive(PS4Controller.GetLeftX()*.4,(PS4Controller.GetR2Axis()-PS4Controller.GetL2Axis())*.4,false);
     center_motor_lead.Set(ctre::phoenix::motorcontrol::ControlMode::PercentOutput
 ,PS4Controller.GetRightX() );
     }
