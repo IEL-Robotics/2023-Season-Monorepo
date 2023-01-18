@@ -6,8 +6,8 @@ public class Constants {
         public final static int idLeftSlave = 52;
         public final static int idRigthMaster = 50;
         public final static int idRightSlave =53;
-        public final static int idMidMaster = 0;
-        public final static int idMidSlave = 0;
+        public final static int idMidMaster = 1;
+        public final static int idMidSlave = 2;
 
         public final static double lowerOutput = 0.4;
         public final static double higherOutput = 0.8;

@@ -6,6 +6,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -25,7 +26,6 @@ public class Robot extends TimedRobot {
 
   private SparkMaxPIDController leftpid;
   private SparkMaxPIDController rightpid;
-
 
   private PS4Controller driverController = new PS4Controller(0);
 
@@ -68,20 +68,16 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {}
 
-  public void flipDirection() {
+  public void driveFunctions() {
     if(flipVar == 1 && driverController.getRawButtonReleased(14)){flipVar = -1;}
     else if(flipVar == -1 && driverController.getRawButtonReleased(14)){flipVar = 1;}
-  }
 
-  public void driveFunctions() {
-    flipDirection();
+    drive.setMaxOutput(ChassisConstants.lowerOutput);
 
-    double outputConstant = Constants.ChassisConstants.lowerOutput; //later change to SetMaxOutput()
+    if(driverController.getRawButton(6)){drive.setMaxOutput(ChassisConstants.higherOutput);}
+    drive.arcadeDrive(-driverController.getLeftX() * .7, flipVar * driverController.getLeftY());
 
-    if(driverController.getRawButton(6)){outputConstant = ChassisConstants.higherOutput;}
-    drive.arcadeDrive(-driverController.getLeftX() * .8 * outputConstant, flipVar * driverController.getLeftY() * outputConstant);
-
-    midMaster.set(TalonSRXControlMode.PercentOutput, driverController.getRightX() * .5);
+    midMaster.set(TalonSRXControlMode.PercentOutput, driverController.getRawAxis(2) * .5);
 
   }
 
