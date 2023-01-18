@@ -12,6 +12,7 @@ void Robot::DriveInit()
 
     m_leftFollowMotor.Follow(m_leftLeadMotor);
     m_rightFollowMotor.Follow(m_rightLeadMotor);
+    center_motor_follow.Follow(center_motor_lead);
 
     m_pidControllerL1.SetP(kP);
     m_pidControllerL1.SetI(kI);
@@ -85,6 +86,8 @@ void Robot::DriveInit()
    if(!PS4Controller.GetCircleButton()){ 
     if (!flip) m_robotDrive.ArcadeDrive(PS4Controller.GetLeftX()*.2,PS4Controller.GetLeftY()*.2,false);
     else m_robotDrive.ArcadeDrive(PS4Controller.GetLeftX()*.2,-PS4Controller.GetLeftY()*.2,false);
+    center_motor_lead.Set(ctre::phoenix::motorcontrol::ControlMode::PercentOutput
+,PS4Controller.GetR2Axis()-PS4Controller.GetL2Axis()  );
     }
          
    else{ 
@@ -95,4 +98,5 @@ void Robot::DriveInit()
     if(PS4Controller.GetTouchpadReleased()){
         flip = !flip;
     }
+    
 }

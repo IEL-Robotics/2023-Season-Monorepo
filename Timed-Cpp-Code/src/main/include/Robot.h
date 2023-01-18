@@ -42,7 +42,7 @@ class Robot : public frc::TimedRobot {
 
 
  private:
-  static const int leftLeadDeviceID = 51, leftFollowDeviceID = 52, rightLeadDeviceID = 50, rightFollowDeviceID = 53, centerMotorLeadID = 1, centerMotorFollowID = 1;
+  static const int leftLeadDeviceID = 51, leftFollowDeviceID = 52, rightLeadDeviceID = 50, rightFollowDeviceID = 53, centerMotorLeadID = 2, centerMotorFollowID = 1;
   // Add motors
   rev::CANSparkMax m_leftLeadMotor{leftLeadDeviceID, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANSparkMax m_rightLeadMotor{rightLeadDeviceID, rev::CANSparkMax::MotorType::kBrushless};
