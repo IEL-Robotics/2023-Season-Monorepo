@@ -1,60 +1,21 @@
 package frc.robot;
 
-import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import frc.robot.Constants.ChassisConstants;
-
+import frc.robot.subsystems.Chassis;
+import frc.robot.subsystems.Vision;
 
 public class Robot extends TimedRobot {
 
-  private CANSparkMax leftMaster = new CANSparkMax(Constants.ChassisConstants.idLeftMaster, MotorType.kBrushless);
-  private CANSparkMax leftSlave = new CANSparkMax(Constants.ChassisConstants.idLeftSlave, MotorType.kBrushless);
-  private CANSparkMax rightMaster = new CANSparkMax(Constants.ChassisConstants.idRigthMaster, MotorType.kBrushless);
-  private CANSparkMax rightSlave = new CANSparkMax(Constants.ChassisConstants.idRightSlave, MotorType.kBrushless);
-  private TalonSRX midMaster = new TalonSRX(Constants.ChassisConstants.idMidMaster);
-  private TalonSRX midSlave = new TalonSRX(Constants.ChassisConstants.idMidSlave);
-
-  private DifferentialDrive drive;
-
-  private SparkMaxPIDController leftpid;
-  private SparkMaxPIDController rightpid;
-
   private PS4Controller driverController = new PS4Controller(0);
+  public Vision vision = new Vision();
 
-  private int flipVar = -1;
-
+  public Chassis m_chassis = new Chassis(driverController, vision);
 
   @Override
   public void robotInit() {
-    leftMaster.setInverted(true);
-    rightMaster.setInverted(true);
-    midMaster.setInverted(false);
-
-    leftSlave.follow(leftMaster);
-    rightSlave.follow(rightMaster);
-    midSlave.follow(midMaster);
-
-    leftSlave.close();
-    rightSlave.close();
-
-    leftpid = leftMaster.getPIDController();
-    rightpid = rightMaster.getPIDController();
-
-    leftpid.setSmartMotionMaxVelocity(Constants.ChassisConstants.maxVel, 0);
-    leftpid.setSmartMotionMaxAccel(Constants.ChassisConstants.maxAcc, 0);
-
-    rightpid.setSmartMotionMaxVelocity(Constants.ChassisConstants.maxVel, 0);
-    rightpid.setSmartMotionMaxAccel(Constants.ChassisConstants.maxAcc, 0);
-
-    drive = new DifferentialDrive(leftMaster, rightMaster);
+    vision.targetTags(); //by default, called after passing the vision object into Chassis() -> would still work?
+    m_chassis.chassisInit();
   }
 
   @Override
@@ -65,27 +26,13 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {}
+
   @Override
   public void teleopInit() {}
 
-  public void driveFunctions() {
-    if(flipVar == 1 && driverController.getRawButtonReleased(14)){flipVar = -1;}
-    else if(flipVar == -1 && driverController.getRawButtonReleased(14)){flipVar = 1;}
-
-    drive.setMaxOutput(ChassisConstants.lowerOutput);
-
-    if(driverController.getRawButton(6)){drive.setMaxOutput(ChassisConstants.higherOutput);}
-    drive.arcadeDrive(-driverController.getLeftX() * .7, flipVar * driverController.getLeftY());
-
-    midMaster.set(TalonSRXControlMode.PercentOutput, driverController.getRawAxis(2) * .5);
-
-  }
-
   @Override
   public void teleopPeriodic() {
-    leftpid.setReference(0, CANSparkMax.ControlType.kSmartMotion);
-    rightpid.setReference(0, CANSparkMax.ControlType.kSmartMotion);
-    driveFunctions();
+    m_chassis.chassisDriving();
   }
 
   @Override
