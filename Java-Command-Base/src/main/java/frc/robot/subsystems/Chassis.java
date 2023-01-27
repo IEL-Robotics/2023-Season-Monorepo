@@ -7,30 +7,35 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.SparkMaxRelativeEncoder;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.PIDCoefficients;
-import frc.robot.Constants.RobotConstants;
-import com.revrobotics.SparkMaxRelativeEncoder;
 
 public class Chassis extends SubsystemBase {
   public final DifferentialDrive m_drive;
 
   private final SparkMaxPIDController m_left_pid, m_right_pid;
   private final RelativeEncoder m_left_encoder, m_right_encoder;
+  private final CANSparkMax m_left_lead = new CANSparkMax(Constants.RobotConstants.kLeftFrontMotorPort,
+      MotorType.kBrushless);
+  private final CANSparkMax m_right_lead = new CANSparkMax(Constants.RobotConstants.kRightFrontMotorPort,
+      MotorType.kBrushless);
+  private final CANSparkMax m_left_follow = new CANSparkMax(Constants.RobotConstants.kLeftBackMotorPort,
+      MotorType.kBrushless);
+  private final CANSparkMax m_right_follow = new CANSparkMax(Constants.RobotConstants.kRightBackMotorPort,
+      MotorType.kBrushless);
 
   /** Creates a new Chassis. */
   public Chassis() {
+
     /*
      * Initialize the motors
      */
-
-    CANSparkMax m_left_lead = new CANSparkMax(RobotConstants.kLeftFrontMotorPort, MotorType.kBrushless);
-    CANSparkMax m_left_follow = new CANSparkMax(RobotConstants.kLeftBackMotorPort, MotorType.kBrushless);
-    CANSparkMax m_right_lead = new CANSparkMax(RobotConstants.kRightBackMotorPort, MotorType.kBrushless);
-    CANSparkMax m_right_follow = new CANSparkMax(RobotConstants.kRightBackMotorPort, MotorType.kBrushless);
 
     /*
      * MotoSetting the Motors
@@ -39,9 +44,10 @@ public class Chassis extends SubsystemBase {
     m_left_follow.follow(m_left_lead);
     m_right_follow.follow(m_right_lead);
 
-    m_left_follow.close();
-
-    m_right_follow.close();
+    m_right_lead.setIdleMode(IdleMode.kBrake);
+    m_left_lead.setIdleMode(IdleMode.kBrake);
+    m_right_follow.setIdleMode(IdleMode.kCoast);
+    m_left_follow.setIdleMode(IdleMode.kCoast);
     /*
      * PID
      */
@@ -84,15 +90,15 @@ public class Chassis extends SubsystemBase {
      * Encoder
      */
 
-    this.m_left_encoder = m_right_lead.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 4096);
-    this.m_right_encoder = m_left_lead.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 4096);
+    this.m_left_encoder = m_left_lead.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
+    this.m_right_encoder = m_right_lead.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
 
     /*
      * Encoder and PID
      */
 
-      this.m_right_pid.setFeedbackDevice(m_right_encoder);
-      this.m_left_pid.setFeedbackDevice(m_left_encoder);
+    this.m_right_pid.setFeedbackDevice(m_right_encoder);
+    this.m_left_pid.setFeedbackDevice(m_left_encoder);
 
     /*
      * Differential Drive
@@ -103,7 +109,6 @@ public class Chassis extends SubsystemBase {
 
   @Override
   public void periodic() {
-
     double p = SmartDashboard.getNumber("P Gain", 0);
     double i = SmartDashboard.getNumber("I Gain", 0);
     double d = SmartDashboard.getNumber("D Gain", 0);
