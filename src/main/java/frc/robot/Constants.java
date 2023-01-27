@@ -12,10 +12,18 @@ public class Constants {
         public final static double lowerOutput = 0.4;
         public final static double higherOutput = 0.8;
 
-        public final static int maxVel = 2000;
-        public final static int maxAcc = 1500;
-
     }
+
+    public static class PIDConstants {
+        public static double kP = 6e-5;
+        public static double kI = 1e-6;
+        public static double kD = 0;
+        public static double kIz = 0;
+        public static double kFF = 0.000015;
+        public static double kMaxOutput = 1;
+        public static double kMinOutput = -1;
+    }
+
     public static class ControllerConstants {
         public final static int turboButton = 6;
     }
