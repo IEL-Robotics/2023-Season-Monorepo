@@ -3,18 +3,15 @@ package frc.robot;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.subsystems.Chassis;
-import frc.robot.subsystems.Vision;
 
 public class Robot extends TimedRobot {
 
   private PS4Controller driverController = new PS4Controller(0);
-  public Vision vision = new Vision();
 
-  public Chassis m_chassis = new Chassis(driverController, vision);
+  public Chassis m_chassis = new Chassis(driverController);
 
   @Override
   public void robotInit() {
-    vision.targetTags(); //by default, called after passing the vision object into Chassis() -> would still work?
     m_chassis.chassisInit();
   }
 

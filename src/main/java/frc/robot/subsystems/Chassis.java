@@ -30,15 +30,11 @@ public class Chassis {
     private SparkMaxPIDController leftpid, rightpid;
 
     private PS4Controller driverController;
-    private Vision vision;
 
     private int flipVar = -1;
 
-    private double[] coordinates = {0, 0, 0};
-
-    public Chassis(PS4Controller driverController, Vision vision){
+    public Chassis(PS4Controller driverController){
         this.driverController = driverController;
-        this.vision = vision;
     }
 
     public void chassisInit(){
@@ -73,8 +69,6 @@ public class Chassis {
         drive.arcadeDrive(-driverController.getLeftX() * .7, flipVar * driverController.getLeftY());
 
         midMaster.set(TalonSRXControlMode.PercentOutput, driverController.getRawAxis(2) * .5);
-
-        coordinates = vision.getFieldPosition(); //do whatever you want
 
     }
 
