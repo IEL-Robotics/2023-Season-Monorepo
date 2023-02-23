@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxRelativeEncoder;
@@ -10,6 +11,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.PS4Controller;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ChassisConstants;
@@ -28,6 +30,8 @@ public class Chassis {
     private RelativeEncoder leftEncoder, rightEncoder;
 
     private SparkMaxPIDController leftpid, rightpid;
+
+    private AHRS gyro = new AHRS(SPI.Port.kMXP);
 
     private PS4Controller driverController;
 
@@ -51,7 +55,7 @@ public class Chassis {
         leftSlave.follow(leftMaster);
         rightSlave.follow(rightMaster);
         midSlave.follow(midMaster);
-    
+
         pidInit();
     
         drive = new DifferentialDrive(leftMaster, rightMaster);
@@ -70,6 +74,10 @@ public class Chassis {
 
         midMaster.set(TalonSRXControlMode.PercentOutput, driverController.getRawAxis(2) * .5);
 
+        SmartDashboard.putNumber("Gyro Rate", gyro.getRate());
+        SmartDashboard.putNumber("Pitch", gyro.getPitch()); //Charge Station
+        SmartDashboard.putNumber("Yaw", gyro.getYaw());
+        SmartDashboard.putNumber("Roll", gyro.getRoll());
     }
 
     public void pidInit(){
@@ -132,7 +140,7 @@ public class Chassis {
             PIDConstants.kMaxOutput = max;
             PIDConstants.kMinOutput = min;
         }
-
+                
         leftpid.setReference(rotations, CANSparkMax.ControlType.kPosition);
         rightpid.setReference(rotations, CANSparkMax.ControlType.kPosition);
 
