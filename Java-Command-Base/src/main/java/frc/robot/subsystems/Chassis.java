@@ -4,12 +4,15 @@
 
 package frc.robot.subsystems;
 
+import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.SparkMaxRelativeEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
+import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -19,6 +22,7 @@ import frc.robot.Constants.PIDCoefficients;
 public class Chassis extends SubsystemBase {
   public final DifferentialDrive m_drive;
 
+  private final AHRS m_gyro = new AHRS();
   private final SparkMaxPIDController m_left_pid, m_right_pid;
   private final RelativeEncoder m_left_encoder, m_right_encoder;
   private final CANSparkMax m_left_lead = new CANSparkMax(Constants.RobotConstants.kLeftFrontMotorPort,
@@ -93,6 +97,11 @@ public class Chassis extends SubsystemBase {
     this.m_left_encoder = m_left_lead.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
     this.m_right_encoder = m_right_lead.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
 
+    // Wheel is 6 inches, gearbox ratio is ~ 11:1 and 1 meter is ~40inches
+    // I hate imperial
+    this.m_right_encoder.setPositionConversionFactor(Math.PI * 6 / 11 / 40);
+    this.m_left_encoder.setPositionConversionFactor(Math.PI * 6 / 11 / 40);
+
     /*
      * Encoder and PID
      */
@@ -105,6 +114,8 @@ public class Chassis extends SubsystemBase {
      */
     this.m_drive = new DifferentialDrive(m_left_lead, m_right_lead);
     this.m_drive.setSafetyEnabled(false);
+    DifferentialDriveOdometry m_drive_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d(),
+        m_left_encoder.getPosition(), m_right_encoder.getPosition());
   }
 
   @Override

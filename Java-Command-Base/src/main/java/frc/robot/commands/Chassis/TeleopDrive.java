@@ -30,11 +30,11 @@ public class TeleopDrive extends CommandBase {
   public void execute() {
 
     this.m_chassis.m_drive.setMaxOutput(0.5);
-    if (this.m_joystick.getR2Button()) {
-      this.m_chassis.m_drive.setMaxOutput(0.5 + this.m_joystick.getR2Axis() * 0.5);
+    if (this.m_joystick.getR1Button()) {
+      this.m_chassis.m_drive.setMaxOutput(1);
     }
     this.m_chassis.m_drive.arcadeDrive(
-        -this.m_joystick.getRawAxis(0),
+        this.m_joystick.getRawAxis(0),
         -this.m_joystick.getRawAxis(1),
         true);
   }
