@@ -24,12 +24,12 @@ public final class Constants {
 
 
   public static class RobotConstants {
-    public static final int kRightFrontMotorPort = 50;
-    public static final int kRightBackMotorPort = 53;
-    public static final int kLeftFrontMotorPort = 51;
-    public static final int kLeftBackMotorPort = 52;
-    public static final int kMidFirstMotorPort = 1;
-    public static final int kMidSecondMotorPort = 2;
+    public static final int kRightFrontMotorPort = 51;
+    public static final int kRightBackMotorPort = 50;
+    public static final int kLeftFrontMotorPort = 52;
+    public static final int kLeftBackMotorPort = 53;
+    public static final int kMidFirstMotorPort = 5;
+    public static final int kMidSecondMotorPort = 4;
   }
 
   public static class PIDCoefficients {

@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.VictorSPXControlMode;
+import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -13,6 +15,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -22,7 +25,7 @@ import frc.robot.Constants.PIDCoefficients;
 public class Chassis extends SubsystemBase {
   public final DifferentialDrive m_drive;
 
-  private final AHRS m_gyro = new AHRS();
+  public final AHRS m_gyro = new AHRS(SPI.Port.kMXP);
   private final SparkMaxPIDController m_left_pid, m_right_pid;
   private final RelativeEncoder m_left_encoder, m_right_encoder;
   private final CANSparkMax m_left_lead = new CANSparkMax(Constants.RobotConstants.kLeftFrontMotorPort,
@@ -33,6 +36,8 @@ public class Chassis extends SubsystemBase {
       MotorType.kBrushless);
   private final CANSparkMax m_right_follow = new CANSparkMax(Constants.RobotConstants.kRightBackMotorPort,
       MotorType.kBrushless);
+  private final VictorSPX m_mid_lead = new VictorSPX(Constants.RobotConstants.kMidFirstMotorPort);
+  private final VictorSPX m_mid_slave = new VictorSPX(Constants.RobotConstants.kMidSecondMotorPort);
 
   /** Creates a new Chassis. */
   public Chassis() {
@@ -52,6 +57,12 @@ public class Chassis extends SubsystemBase {
     m_left_lead.setIdleMode(IdleMode.kBrake);
     m_right_follow.setIdleMode(IdleMode.kCoast);
     m_left_follow.setIdleMode(IdleMode.kCoast);
+
+    m_mid_slave.follow(m_mid_lead);
+
+
+    
+
     /*
      * PID
      */
@@ -116,6 +127,11 @@ public class Chassis extends SubsystemBase {
     this.m_drive.setSafetyEnabled(false);
     DifferentialDriveOdometry m_drive_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d(),
         m_left_encoder.getPosition(), m_right_encoder.getPosition());
+  }
+
+  public void drive_mid_motor(double axis_value, boolean pressed) {
+    double output_multiplier = (pressed) ? 1.0 : 0.7;
+    m_mid_lead.set(VictorSPXControlMode.PercentOutput, axis_value * output_multiplier);
   }
 
   @Override

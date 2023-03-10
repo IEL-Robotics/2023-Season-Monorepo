@@ -25,18 +25,30 @@ public class TeleopDrive extends CommandBase {
   public void initialize() {
   }
 
+  double x_, y_;
+
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
+    boolean pressed = false;
     this.m_chassis.m_drive.setMaxOutput(0.5);
     if (this.m_joystick.getR1Button()) {
+      pressed = true;
       this.m_chassis.m_drive.setMaxOutput(1);
     }
+
+    // TODO: Check axises
+    double x_ax = this.m_joystick.getRawAxis(2), y_ax = this.m_joystick.getRawAxis(0),
+        angle = this.m_chassis.m_gyro.getAngle() % 360;
+    x_ = x_ax * Math.cos(angle) - 1 * y_ax * Math.sin(angle);
+
+    y_ = -1 * x_ax * Math.sin(angle)
+        + y_ax * Math.cos(angle);
+
+    m_chassis.drive_mid_motor(x_, pressed);
     this.m_chassis.m_drive.arcadeDrive(
-        this.m_joystick.getRawAxis(0),
-        -this.m_joystick.getRawAxis(1),
-        true);
+        y_,
+        this.m_joystick.getRawAxis(5));
   }
 
   // Called once the command ends or is interrupted.
