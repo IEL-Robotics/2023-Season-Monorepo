@@ -40,9 +40,9 @@ public class TeleopDrive extends CommandBase {
     // TODO: Check axises
     double x_ax = this.m_joystick.getRawAxis(2), y_ax = this.m_joystick.getRawAxis(0),
         angle = this.m_chassis.m_gyro.getAngle() % 360;
-    x_ = x_ax * Math.cos(angle) - 1 * y_ax * Math.sin(angle);
+    x_ = x_ax * Math.cos(angle) - y_ax * Math.sin(angle);
 
-    y_ = -1 * x_ax * Math.sin(angle)
+    y_ = x_ax * Math.sin(angle)
         + y_ax * Math.cos(angle);
 
     m_chassis.drive_mid_motor(x_, pressed);
