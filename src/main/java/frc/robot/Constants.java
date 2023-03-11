@@ -1,13 +1,14 @@
 package frc.robot;
 
 public class Constants {
+
     public static class ChassisConstants {
-        public final static int idLeftMaster = 51;
-        public final static int idLeftSlave = 52;
-        public final static int idRigthMaster = 50;
-        public final static int idRightSlave =53;
-        public final static int idMidMaster = 1;
-        public final static int idMidSlave = 2;
+        public final static int idLeftMaster = 52;
+        public final static int idLeftSlave = 53;
+        public final static int idRigthMaster = 51;
+        public final static int idRightSlave =50;
+        public final static int idMidMaster = 5;
+        public final static int idMidSlave = 4;
 
         public final static double lowerOutput = 0.4;
         public final static double higherOutput = 0.8;
