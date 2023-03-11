@@ -1,7 +1,7 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.VictorSPXControlMode;
+import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -16,16 +16,16 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ChassisConstants;
 import frc.robot.Constants.PIDConstants;
-
+//TRYING SOME SHIT
 public class Chassis {
     private CANSparkMax leftMaster = new CANSparkMax(ChassisConstants.idLeftMaster, MotorType.kBrushless);
     private CANSparkMax leftSlave = new CANSparkMax(ChassisConstants.idLeftSlave, MotorType.kBrushless);
     private CANSparkMax rightMaster = new CANSparkMax(ChassisConstants.idRigthMaster, MotorType.kBrushless);
     private CANSparkMax rightSlave = new CANSparkMax(ChassisConstants.idRightSlave, MotorType.kBrushless);
-    private TalonSRX midMaster = new TalonSRX(ChassisConstants.idMidMaster);
-    private TalonSRX midSlave = new TalonSRX(ChassisConstants.idMidSlave);
+    private VictorSPX midMaster = new VictorSPX(ChassisConstants.idMidMaster);
+    private VictorSPX midSlave = new VictorSPX(ChassisConstants.idMidSlave);
 
-    private DifferentialDrive drive;
+    // private DifferentialDrive drive;
 
     private RelativeEncoder leftEncoder, rightEncoder;
 
@@ -36,6 +36,11 @@ public class Chassis {
     private PS4Controller driverController;
 
     private int flipVar = -1;
+
+    private float startAlpha;
+
+    private double sideWheelsAngleConstant;
+    private double midWheelsAngleConstant;
 
     public Chassis(PS4Controller driverController){
         this.driverController = driverController;
@@ -48,37 +53,98 @@ public class Chassis {
         leftSlave.setIdleMode(IdleMode.kCoast);
         rightSlave.setIdleMode(IdleMode.kCoast);
 
-        leftMaster.setInverted(true);
-        rightMaster.setInverted(true);
+        leftMaster.setInverted(false);
+        rightMaster.setInverted(true); //idk why but it works this way, my bad
         midMaster.setInverted(false);
     
         leftSlave.follow(leftMaster);
         rightSlave.follow(rightMaster);
         midSlave.follow(midMaster);
 
-        pidInit();
+        //pidInit();
     
-        drive = new DifferentialDrive(leftMaster, rightMaster);
+        // drive = new DifferentialDrive(leftMaster, rightMaster);
     }
+
+    //***************************************************
+    //ALL THE SHITSHOW IS HAPPENING BETWEEN THIS LINE AND
+    //***************************************************
 
     public void chassisDriving(){
 
-        pidPeriodic();
+        //pidPeriodic();
 
         if(driverController.getRawButtonReleased(14)){flipVar = -flipVar;}
 
-        drive.setMaxOutput(ChassisConstants.lowerOutput);
-        if(driverController.getRawButton(6)){drive.setMaxOutput(ChassisConstants.higherOutput);}
-
-        drive.arcadeDrive(-driverController.getLeftX() * .7, flipVar * driverController.getLeftY());
-
-        midMaster.set(TalonSRXControlMode.PercentOutput, driverController.getRawAxis(2) * .5);
+        // drive.setMaxOutput(ChassisConstants.lowerOutput);
+        // if(driverController.getRawButton(6)){drive.setMaxOutput(ChassisConstants.higherOutput);}
 
         SmartDashboard.putNumber("Gyro Rate", gyro.getRate());
         SmartDashboard.putNumber("Pitch", gyro.getPitch()); //Charge Station
+        SmartDashboard.putNumber("Start Alpha Pos", startAlpha);
         SmartDashboard.putNumber("Yaw", gyro.getYaw());
+        SmartDashboard.putNumber("Relative Pos", gyro.getYaw()-startAlpha);
         SmartDashboard.putNumber("Roll", gyro.getRoll());
+
+        findGyroConstants();
+
+        SmartDashboard.putNumber("SideWAC", sideWheelsAngleConstant);
+        SmartDashboard.putNumber("MidWAC", midWheelsAngleConstant);
+
+        SmartDashboard.putNumber("Axis2", driverController.getRawAxis(2));
+
+        // leftMaster.set(sideWheelsAngleConstant + driverController.getRawAxis(2));
+        // rightMaster.set(sideWheelsAngleConstant - driverController.getRawAxis(2));
+
+        if(Math.abs(sideWheelsAngleConstant) > 0.05){
+            leftMaster.set(sideWheelsAngleConstant * .5 + driverController.getRawAxis(2) * .5);
+            rightMaster.set(sideWheelsAngleConstant * .5 - driverController.getRawAxis(2) * .5);
+            SmartDashboard.putBoolean("Buyuktur?", true);
+        }
+        else {
+            leftMaster.set(0 + driverController.getRawAxis(2) * .5);
+            rightMaster.set(0 - driverController.getRawAxis(2) * .5);
+            SmartDashboard.putBoolean("Buyuktur?", false);
+        }
+
+        midMaster.set(VictorSPXControlMode.PercentOutput, midWheelsAngleConstant * .5);
     }
+
+    public double getBeta(){
+        double betaAngle = Math.toDegrees(Math.atan2((driverController.getRawAxis(1)),(driverController.getRawAxis(0)))) + 90;
+        SmartDashboard.putNumber("Beta as Degree", betaAngle);
+        return betaAngle;
+    }
+
+    public double getAlpha(){
+        double alphaAngle = gyro.getYaw() - startAlpha;
+        return alphaAngle;
+    }
+
+    public void findGyroConstants(){
+        double b = getBeta();
+        double a = getAlpha();
+
+        double kSide = Math.cos(Math.toRadians(b - a));
+        double kMid = Math.sin(Math.toRadians(b - a));
+
+        double v0 = Math.pow(driverController.getRawAxis(0), 2);
+        double v1 = Math.pow(driverController.getRawAxis(1), 2);
+        double v2 = Math.sqrt(v0 + v1);
+
+        SmartDashboard.putNumber("B", b);
+        SmartDashboard.putNumber("A", a); 
+        
+        SmartDashboard.putNumber("Cos B-A", kSide);
+        SmartDashboard.putNumber("Sin B-A ", kMid);
+
+        sideWheelsAngleConstant = v2 * kSide;
+        midWheelsAngleConstant = v2 * kMid;
+    }
+
+    //***********************************************************
+    //AND THIS LINE, ALL ALL OTHER LINES ARE (somewhat) IRRELEVANT
+    //***********************************************************
 
     public void pidInit(){
 
@@ -144,6 +210,10 @@ public class Chassis {
         leftpid.setReference(rotations, CANSparkMax.ControlType.kPosition);
         rightpid.setReference(rotations, CANSparkMax.ControlType.kPosition);
 
+    }
+
+    public void setGyroStartingAngle(){
+        startAlpha = gyro.getYaw();
     }
 
 }
