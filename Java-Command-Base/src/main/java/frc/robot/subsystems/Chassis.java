@@ -39,6 +39,7 @@ public class Chassis extends SubsystemBase {
   private final VictorSPX m_mid_lead = new VictorSPX(Constants.RobotConstants.kMidFirstMotorPort);
   private final VictorSPX m_mid_slave = new VictorSPX(Constants.RobotConstants.kMidSecondMotorPort);
 
+
   /** Creates a new Chassis. */
   public Chassis() {
 
@@ -125,6 +126,8 @@ public class Chassis extends SubsystemBase {
      */
     this.m_drive = new DifferentialDrive(m_left_lead, m_right_lead);
     this.m_drive.setSafetyEnabled(false);
+
+    this.m_gyro.calibrate();
     DifferentialDriveOdometry m_drive_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d(),
         m_left_encoder.getPosition(), m_right_encoder.getPosition());
   }
