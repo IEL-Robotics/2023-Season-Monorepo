@@ -31,6 +31,7 @@ public class TeleopDrive extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    this.m_chassis.m_drive.feed();
     boolean pressed = false;
     this.m_chassis.m_drive.setMaxOutput(0.5);
     if (this.m_joystick.getR1Button()) {
@@ -55,10 +56,10 @@ public class TeleopDrive extends CommandBase {
     SmartDashboard.putNumber("Computed y", y_);
     SmartDashboard.putNumber("Yaw", yaw);
 
-    m_chassis.drive_mid_motor(x_, false);
+    m_chassis.drive_mid_motor(-x_, pressed);
     this.m_chassis.m_drive.arcadeDrive(
-        z_ax,
-        y_);
+        y_,
+        z_ax);
   }
 
   // Called once the command ends or is interrupted.

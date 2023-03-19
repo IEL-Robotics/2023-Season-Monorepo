@@ -8,7 +8,6 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Gripper extends SubsystemBase {
@@ -16,6 +15,7 @@ public class Gripper extends SubsystemBase {
   private final DoubleSolenoid m_doublesolenoid  = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 6, 7);
   /** Creates a new Gripper. */
   public Gripper() {
+    m_doublesolenoid.set(Value.kForward);
   }
 
   @Override
@@ -36,8 +36,6 @@ public class Gripper extends SubsystemBase {
   }
 
   public void sld_toggle() {
-    SmartDashboard.putBoolean("Pressed", true);
-    System.out.println("pressed");
     m_doublesolenoid.toggle();
   }
 }

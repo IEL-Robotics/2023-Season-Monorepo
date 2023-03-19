@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.VictorSPXControlMode;
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -14,7 +12,9 @@ import com.revrobotics.SparkMaxRelativeEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -26,8 +26,8 @@ public class Chassis extends SubsystemBase {
   public final DifferentialDrive m_drive;
 
   public final AHRS m_gyro = new AHRS(SPI.Port.kMXP);
-  private final SparkMaxPIDController m_left_pid, m_right_pid;
-  private final RelativeEncoder m_left_encoder, m_right_encoder;
+  private final SparkMaxPIDController m_left_pid, m_right_pid, m_mid_pid;
+  private final RelativeEncoder m_left_encoder, m_right_encoder, m_mid_encoder;
   private final CANSparkMax m_left_lead = new CANSparkMax(Constants.RobotConstants.kLeftFrontMotorPort,
       MotorType.kBrushless);
   private final CANSparkMax m_right_lead = new CANSparkMax(Constants.RobotConstants.kRightFrontMotorPort,
@@ -36,9 +36,11 @@ public class Chassis extends SubsystemBase {
       MotorType.kBrushless);
   private final CANSparkMax m_right_follow = new CANSparkMax(Constants.RobotConstants.kRightBackMotorPort,
       MotorType.kBrushless);
-  private final VictorSPX m_mid_lead = new VictorSPX(Constants.RobotConstants.kMidFirstMotorPort);
-  private final VictorSPX m_mid_slave = new VictorSPX(Constants.RobotConstants.kMidSecondMotorPort);
-
+  private final CANSparkMax m_mid_lead = new CANSparkMax(Constants.RobotConstants.kMidFirstMotorPort,
+      MotorType.kBrushless);
+  private final CANSparkMax m_mid_slave = new CANSparkMax(Constants.RobotConstants.kMidSecondMotorPort,
+      MotorType.kBrushless);
+  private final DifferentialDriveOdometry m_odometry;
 
   /** Creates a new Chassis. */
   public Chassis() {
@@ -53,16 +55,14 @@ public class Chassis extends SubsystemBase {
 
     m_left_follow.follow(m_left_lead);
     m_right_follow.follow(m_right_lead);
+    m_mid_slave.follow(m_mid_lead);
 
     m_right_lead.setIdleMode(IdleMode.kBrake);
     m_left_lead.setIdleMode(IdleMode.kBrake);
     m_right_follow.setIdleMode(IdleMode.kCoast);
     m_left_follow.setIdleMode(IdleMode.kCoast);
-
-    m_mid_slave.follow(m_mid_lead);
-
-
-    
+    m_mid_lead.setIdleMode(IdleMode.kBrake);
+    m_mid_slave.setIdleMode(IdleMode.kBrake);
 
     /*
      * PID
@@ -70,24 +70,31 @@ public class Chassis extends SubsystemBase {
 
     this.m_right_pid = m_right_lead.getPIDController();
     this.m_left_pid = m_left_lead.getPIDController();
+    this.m_mid_pid = m_mid_lead.getPIDController();
 
     this.m_right_pid.setP(PIDCoefficients.kP);
     this.m_left_pid.setP(PIDCoefficients.kP);
+    this.m_mid_pid.setP(PIDCoefficients.kP);
 
     this.m_right_pid.setI(PIDCoefficients.kI);
     this.m_left_pid.setI(PIDCoefficients.kI);
+    this.m_mid_pid.setI(PIDCoefficients.kI);
 
     this.m_right_pid.setD(PIDCoefficients.kD);
     this.m_left_pid.setD(PIDCoefficients.kD);
+    this.m_mid_pid.setD(PIDCoefficients.kD);
 
     this.m_right_pid.setIZone(PIDCoefficients.kIz);
     this.m_left_pid.setIZone(PIDCoefficients.kIz);
+    this.m_mid_pid.setIZone(PIDCoefficients.kIz);
 
     this.m_right_pid.setFF(PIDCoefficients.kFF);
     this.m_left_pid.setFF(PIDCoefficients.kFF);
+    this.m_mid_pid.setFF(PIDCoefficients.kFF);
 
     this.m_right_pid.setOutputRange(PIDCoefficients.kMinOutput, PIDCoefficients.kMaxOutput);
     this.m_left_pid.setOutputRange(PIDCoefficients.kMinOutput, PIDCoefficients.kMaxOutput);
+    this.m_mid_pid.setOutputRange(PIDCoefficients.kMinOutput, PIDCoefficients.kMaxOutput);
 
     /*
      * Put values to Smartdashboard
@@ -108,11 +115,17 @@ public class Chassis extends SubsystemBase {
 
     this.m_left_encoder = m_left_lead.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
     this.m_right_encoder = m_right_lead.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
+    this.m_mid_encoder = m_mid_lead.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
 
     // Wheel is 6 inches, gearbox ratio is ~ 11:1 and 1 meter is ~40inches
     // I hate imperial
-    this.m_right_encoder.setPositionConversionFactor(Math.PI * 6 / 11 / 40);
-    this.m_left_encoder.setPositionConversionFactor(Math.PI * 6 / 11 / 40);
+    this.m_right_encoder.setPositionConversionFactor(Math.PI * 6 / 11 / 39.37);
+    this.m_left_encoder.setPositionConversionFactor(Math.PI * 6 / 11 / 39.37);
+    this.m_right_encoder.setVelocityConversionFactor(Math.PI * 6 / 11 / 39.37);
+    this.m_left_encoder.setVelocityConversionFactor(Math.PI * 6 / 11 / 39.37);
+    // mid wheel gearbox ratio is something different
+    this.m_mid_encoder.setPosition(Math.PI * 6 / 8.46 / 39.37);
+    this.m_mid_encoder.setVelocityConversionFactor(Math.PI * 6 / 8.46 / 39.37);
 
     /*
      * Encoder and PID
@@ -120,6 +133,9 @@ public class Chassis extends SubsystemBase {
 
     this.m_right_pid.setFeedbackDevice(m_right_encoder);
     this.m_left_pid.setFeedbackDevice(m_left_encoder);
+    this.m_mid_pid.setFeedbackDevice(m_mid_encoder);
+
+    reset_encoders();
 
     /*
      * Differential Drive
@@ -128,17 +144,125 @@ public class Chassis extends SubsystemBase {
     this.m_drive.setSafetyEnabled(false);
 
     this.m_gyro.calibrate();
-    DifferentialDriveOdometry m_drive_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d(),
-        m_left_encoder.getPosition(), m_right_encoder.getPosition());
+
+    this.m_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d(), m_left_encoder.getPosition(),
+        m_right_encoder.getPosition());
+  }
+
+  public Pose2d getPose() {
+    return m_odometry.getPoseMeters();
+  }
+
+  public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+
+    return new DifferentialDriveWheelSpeeds(m_left_encoder.getVelocity(), m_right_encoder.getVelocity());
+
+  }
+
+  public void reset_odometry(Pose2d pose) {
+
+    reset_encoders();
+
+    m_odometry.resetPosition(m_gyro.getRotation2d(), m_left_encoder.getPosition(), m_right_encoder.getPosition(), pose);
+
   }
 
   public void drive_mid_motor(double axis_value, boolean pressed) {
-    double output_multiplier = (pressed) ? 1.0 : 0.7;
-    m_mid_lead.set(VictorSPXControlMode.PercentOutput, axis_value * output_multiplier);
+    double output_multiplier = (pressed) ? 1.0 : 0.5;
+    this.m_mid_lead.set(axis_value * output_multiplier);
+  }
+
+  public void reset_encoders() {
+    this.m_right_encoder.setPosition(0);
+    this.m_left_encoder.setPosition(0);
+    this.m_mid_encoder.setPosition(0);
+  }
+
+  /**
+   * 
+   * Drives the robot using arcade controls.
+   *
+   * 
+   * 
+   * @param fwd the commanded forward movement
+   * 
+   * @param rot the commanded rotation
+   * 
+   */
+
+  public void arcadeDrive(double fwd, double rot) {
+
+    m_drive.arcadeDrive(fwd, rot);
+
+  }
+
+  /**
+   * 
+   * Controls the left and right sides of the drive directly with voltages.
+   *
+   * 
+   * 
+   * @param leftVolts  the commanded left output
+   * 
+   * @param rightVolts the commanded right output
+   * 
+   */
+
+  public void tankDriveVolts(double leftVolts, double rightVolts) {
+
+    m_left_lead.setVoltage(leftVolts);
+
+    m_right_lead.setVoltage(rightVolts);
+
+    m_drive.feed();
+
+  }
+
+  public double getAverageEncoderDistance() {
+
+    return (m_left_encoder.getPosition() + m_right_encoder.getPosition()) / 2.0;
+
+  }
+
+  public RelativeEncoder getLeftEncoder() {
+
+    return m_left_encoder;
+
+  }
+
+  public RelativeEncoder getRightEncoder() {
+
+    return m_right_encoder;
+
+  }
+
+  public void setMaxOutput(double maxOutput) {
+
+    m_drive.setMaxOutput(maxOutput);
+
+  }
+
+  public void zeroHeading() {
+
+    m_gyro.reset();
+
+  }
+
+  public double getHeading() {
+
+    return m_gyro.getRotation2d().getDegrees();
+
+  }
+
+  public double getTurnRate() {
+
+    return -m_gyro.getRate();
+
   }
 
   @Override
   public void periodic() {
+    m_odometry.update(m_gyro.getRotation2d(), m_left_encoder.getPosition(), m_right_encoder.getPosition());
     double p = SmartDashboard.getNumber("P Gain", 0);
     double i = SmartDashboard.getNumber("I Gain", 0);
     double d = SmartDashboard.getNumber("D Gain", 0);
@@ -184,8 +308,5 @@ public class Chassis extends SubsystemBase {
 
     this.m_right_pid.setReference(rotations, CANSparkMax.ControlType.kPosition);
     this.m_left_pid.setReference(rotations, CANSparkMax.ControlType.kPosition);
-
-    // start the drive
-    this.m_drive.feed();
   }
 }
