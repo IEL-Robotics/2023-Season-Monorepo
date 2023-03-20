@@ -56,9 +56,9 @@ public class TeleopDrive extends CommandBase {
     SmartDashboard.putNumber("Computed y", y_);
     SmartDashboard.putNumber("Yaw", yaw);
 
-    m_chassis.drive_mid_motor(-x_, pressed);
+    m_chassis.drive_mid_motor(x_ax, pressed);
     this.m_chassis.m_drive.arcadeDrive(
-        y_,
+        y_ax,
         z_ax);
   }
 

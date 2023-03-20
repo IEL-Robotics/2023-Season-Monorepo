@@ -18,21 +18,21 @@ public class Arm extends SubsystemBase {
   public Arm() {
     m_arm_master = new CANSparkMax(RobotConstants.kArmRightMotorPort, MotorType.kBrushless);
     m_arm_slave = new CANSparkMax(RobotConstants.kArmLeftMotorPort, MotorType.kBrushless);
-    m_arm_slave.follow(m_arm_master);
-    m_arm_master.setIdleMode(IdleMode.kBrake);
-    m_arm_slave.setIdleMode(IdleMode.kBrake);
   }
 
   public void arm_raise() {
     this.m_arm_master.set(0.7);
+    this.m_arm_slave.set(0.7);
   }
 
   public void arm_lower() {
     this.m_arm_master.set(-0.7);
+    this.m_arm_slave.set(-0.7);
   }
 
   public void arm_hold() {
     this.m_arm_master.set(0);
+    this.m_arm_slave.set(0);
   }
 
   @Override

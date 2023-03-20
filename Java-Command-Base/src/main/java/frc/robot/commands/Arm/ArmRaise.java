@@ -10,10 +10,10 @@ import frc.robot.subsystems.Arm;
 public class ArmRaise extends CommandBase {
   private final Arm m_arm;
   /** Creates a new ArmRaise. */
-  public ArmRaise(Arm m_arm2) {
+  public ArmRaise(Arm m_arm) {
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(m_arm2);
-    this.m_arm = m_arm2;
+    addRequirements(m_arm);
+    this.m_arm = m_arm;
   }
 
   // Called when the command is initially scheduled.

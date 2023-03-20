@@ -1,0 +1,9 @@
+{
+  "lengthUnit": "Meter",
+  "exportUnit": "Always Meters",
+  "maxVelocity": 8.5,
+  "maxAcceleration": 1.0,
+  "trackWidth": 0.69,
+  "gameName": "Charged Up",
+  "outputDir": "../Java-Command-Base"
+}

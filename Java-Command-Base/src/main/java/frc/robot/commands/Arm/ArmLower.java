@@ -9,7 +9,6 @@ import frc.robot.subsystems.Arm;
 
 public class ArmLower extends CommandBase {
   private final Arm m_arm;
-
   /** Creates a new ArmRaise. */
   public ArmLower(Arm m_arm) {
     // Use addRequirements() here to declare subsystem dependencies.

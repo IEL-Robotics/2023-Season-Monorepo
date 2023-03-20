@@ -15,19 +15,18 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Gripper;
 
-import java.util.List;
-
+import java.io.IOException;
+import java.nio.file.Path;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.PneumaticsControlModule;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -53,14 +52,14 @@ public class RobotContainer {
 
 
   // Driver Joystick Definitions
-  private final PS4Controller m_driverController = new PS4Controller(OperatorConstants.kDriverControllerPort);
+  private final PS4Controller m_driver_controller = new PS4Controller(OperatorConstants.kDriverControllerPort);
 
   // Subsystem Definitions
   public final Chassis m_chassis = new Chassis();
   public final Gripper m_gripper = new Gripper();
 
   // Command definitions
-  private final Command m_teleopCommand = new TeleopDrive(m_chassis, m_driverController);
+  private final Command m_teleopCommand = new TeleopDrive(m_chassis, m_driver_controller);
   private final GripperForward m_gripper_forward = new GripperForward(m_gripper);
   private final GripperBackward m_gripper_backward = new GripperBackward(m_gripper);
 
@@ -99,10 +98,10 @@ public class RobotContainer {
     // pressed,
     // cancelling on release.
 
-    new JoystickButton(m_driverController, PS4Controller.Button.kCircle.value).onTrue(m_gripper_forward);
-    new JoystickButton(m_driverController, PS4Controller.Button.kTriangle.value).onTrue(m_gripper_backward);
-    new JoystickButton(m_driverController, PS4Controller.Button.kCross.value).whileTrue(m_raise_arm);
-    new JoystickButton(m_driverController, PS4Controller.Button.kSquare.value).whileTrue(m_lower_arm);
+    new JoystickButton(m_driver_controller, PS4Controller.Button.kCircle.value).onTrue(m_gripper_forward);
+    new JoystickButton(m_driver_controller, PS4Controller.Button.kSquare.value).onTrue(m_gripper_backward);
+    new JoystickButton(m_driver_controller, PS4Controller.Button.kR1.value).whileTrue(m_raise_arm);
+    new JoystickButton(m_driver_controller, PS4Controller.Button.kL1.value).whileTrue(m_lower_arm);
   }
 
   /**
@@ -110,7 +109,18 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
+
+
+  String trajectoryJSON = "paths/YourPath.wpilib.json";
+  Trajectory trajectory = new Trajectory();
   public Command getAutonomousCommand() {
+
+    try {
+      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
+      trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+    } catch (IOException ex) {
+      DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
+    }
     var autoVoltageConstraint =
 
         new DifferentialDriveVoltageConstraint(
@@ -147,31 +157,13 @@ public class RobotContainer {
 
     // An example trajectory to follow. All units in meters.
 
-    Trajectory exampleTrajectory =
-
-        TrajectoryGenerator.generateTrajectory(
-
-            // Start at the origin facing the +X direction
-
-            new Pose2d(0, 0, new Rotation2d(0)),
-
-            // Pass through these two interior waypoints, making an 's' curve path
-
-            List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
-
-            // End 3 meters straight ahead of where we started, facing forward
-
-            new Pose2d(3, 0, new Rotation2d(0)),
-
-            // Pass config
-
-            config);
+    
 
     RamseteCommand ramseteCommand =
 
         new RamseteCommand(
 
-            exampleTrajectory,
+            trajectory,
 
             m_chassis::getPose,
 
@@ -201,7 +193,7 @@ public class RobotContainer {
 
     // Reset odometry to the starting pose of the trajectory.
 
-    m_chassis.reset_odometry(exampleTrajectory.getInitialPose());
+    m_chassis.reset_odometry(trajectory.getInitialPose());
 
     // Run path following command, then stop at the end.
 
