@@ -248,6 +248,12 @@ public class Chassis {
 
     public void setGyroStartingAngle(){
         startAlpha = gyro.getYaw();
+
+        // CurrentGP = getAlpha() + 180;
+        // SupposedGP = CurrentGP;
+
+        CurrentGP = 180;
+        SupposedGP = 180;
     }
 
 }
