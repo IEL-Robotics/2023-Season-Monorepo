@@ -1,9 +1,13 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PS4Controller;
+import edu.wpi.first.wpilibj.PneumaticsControlModule;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Chassis;
+import frc.robot.subsystems.Pistons;
 
 public class Robot extends TimedRobot {
 
@@ -11,11 +15,16 @@ public class Robot extends TimedRobot {
 
   public Chassis m_chassis = new Chassis(driverController);
   public Arm m_arm = new Arm(driverController);
+  public Pistons m_pistons = new Pistons(driverController);
+
+  private final Compressor m_compressor = new Compressor(PneumaticsModuleType.CTREPCM);
+  private final PneumaticsControlModule m_pcm = new PneumaticsControlModule(31);
 
   @Override
   public void robotInit() {
     m_chassis.chassisInit();
     m_arm.armInit();
+    m_pistons.pistonInit();
   }
 
   @Override
@@ -29,6 +38,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    m_pcm.enableCompressorDigital();
+    m_compressor.enableDigital();
     m_chassis.setGyroStartingAngle();
   }
 
@@ -36,6 +47,7 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     m_chassis.chassisDriving();
     m_arm.armPeriodic();
+    m_pistons.pistonPeriodic();
   }
 
   @Override

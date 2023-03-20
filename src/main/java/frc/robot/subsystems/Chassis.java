@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.VictorSPXControlMode;
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -16,18 +14,21 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ChassisConstants;
 import frc.robot.Constants.PIDConstants;
-//TRYING SOME SHIT
+
 public class Chassis {
     private CANSparkMax leftMaster = new CANSparkMax(ChassisConstants.idLeftMaster, MotorType.kBrushless);
     private CANSparkMax leftSlave = new CANSparkMax(ChassisConstants.idLeftSlave, MotorType.kBrushless);
     private CANSparkMax rightMaster = new CANSparkMax(ChassisConstants.idRigthMaster, MotorType.kBrushless);
     private CANSparkMax rightSlave = new CANSparkMax(ChassisConstants.idRightSlave, MotorType.kBrushless);
-    private VictorSPX midMaster = new VictorSPX(ChassisConstants.idMidMaster);
-    private VictorSPX midSlave = new VictorSPX(ChassisConstants.idMidSlave);
+    private CANSparkMax midMaster = new CANSparkMax(ChassisConstants.idMidMaster, MotorType.kBrushless);
+    private CANSparkMax midSlave = new CANSparkMax(ChassisConstants.idMidSlave, MotorType.kBrushless);
+   
+    private double CurrentGP = 180;
+    private double SupposedGP = 180;
 
-    // private DifferentialDrive drive;
+    private DifferentialDrive drive;
 
-    private RelativeEncoder leftEncoder, rightEncoder;
+    private RelativeEncoder leftEncoder, rightEncoder, midEncoder;
 
     private SparkMaxPIDController leftpid, rightpid;
 
@@ -35,12 +36,10 @@ public class Chassis {
 
     private PS4Controller driverController;
 
-    private int flipVar = -1;
-
     private float startAlpha;
 
-    private double sideWheelsAngleConstant;
-    private double midWheelsAngleConstant;
+    private double sideWheelsAngleVariable;
+    private double midWheelsAngleVariable;
 
     public Chassis(PS4Controller driverController){
         this.driverController = driverController;
@@ -61,23 +60,17 @@ public class Chassis {
         rightSlave.follow(rightMaster);
         midSlave.follow(midMaster);
 
-        //pidInit();
+        pidInit();
     
-        // drive = new DifferentialDrive(leftMaster, rightMaster);
+        drive = new DifferentialDrive(leftMaster, rightMaster);
     }
 
-    //***************************************************
-    //ALL THE SHITSHOW IS HAPPENING BETWEEN THIS LINE AND
-    //***************************************************
-
     public void chassisDriving(){
+        
+        pidPeriodic();
 
-        //pidPeriodic();
-
-        if(driverController.getRawButtonReleased(14)){flipVar = -flipVar;}
-
-        // drive.setMaxOutput(ChassisConstants.lowerOutput);
-        // if(driverController.getRawButton(6)){drive.setMaxOutput(ChassisConstants.higherOutput);}
+        drive.setMaxOutput(ChassisConstants.lowerOutput);
+        if(driverController.getRawButton(6)){drive.setMaxOutput(ChassisConstants.higherOutput);}
 
         SmartDashboard.putNumber("Gyro Rate", gyro.getRate());
         SmartDashboard.putNumber("Pitch", gyro.getPitch()); //Charge Station
@@ -88,26 +81,70 @@ public class Chassis {
 
         findGyroConstants();
 
-        SmartDashboard.putNumber("SideWAC", sideWheelsAngleConstant);
-        SmartDashboard.putNumber("MidWAC", midWheelsAngleConstant);
+        SmartDashboard.putNumber("SideWAC", sideWheelsAngleVariable);
+        SmartDashboard.putNumber("MidWAC", midWheelsAngleVariable);
 
         SmartDashboard.putNumber("Axis2", driverController.getRawAxis(2));
 
         // leftMaster.set(sideWheelsAngleConstant + driverController.getRawAxis(2));
-        // rightMaster.set(sideWheelsAngleConstant - driverController.getRawAxis(2));
+        // rightMaster.set(sideWheelsAngleConstant - driverController.getRawAxis(2));        
 
-        if(Math.abs(sideWheelsAngleConstant) > 0.05){
-            leftMaster.set(sideWheelsAngleConstant * .5 + driverController.getRawAxis(2) * .5);
-            rightMaster.set(sideWheelsAngleConstant * .5 - driverController.getRawAxis(2) * .5);
-            SmartDashboard.putBoolean("Buyuktur?", true);
-        }
-        else {
-            leftMaster.set(0 + driverController.getRawAxis(2) * .5);
-            rightMaster.set(0 - driverController.getRawAxis(2) * .5);
-            SmartDashboard.putBoolean("Buyuktur?", false);
-        }
+        //*****/
+        // if(Math.abs(sideWheelsAngleVariable) > 0.05){
+        //     drive.arcadeDrive(sideWheelsAngleVariable, driverController.getRawAxis(2));
+        //     SmartDashboard.putBoolean("Buyuktur?", true);
+        //     // leftMaster.set(sideWheelsAngleVariable * .5 + driverController.getRawAxis(2) * .5);
+        //     // rightMaster.set(sideWheelsAngleVariable * .5 - driverController.getRawAxis(2) * .5);
+        // }
+        // else {
+        //     if(Math.abs(driverController.getRawAxis(2))>0.05){
+        //         leftMaster.set(driverController.getRawAxis(2) * .5);
+        //         rightMaster.set(-driverController.getRawAxis(2) * .5);
+        //     }
+        //     SmartDashboard.putBoolean("Buyuktur?", false);
+        // }
+        /*****/
 
-        midMaster.set(VictorSPXControlMode.PercentOutput, midWheelsAngleConstant * .5);
+        // if(Math.abs(sideWheelsAngleVariable) > 0.05){
+        //     drive.tankDrive(sideWheelsAngleVariable + driverController.getRawAxis(2), sideWheelsAngleVariable - driverController.getRawAxis(2));
+        //     SmartDashboard.putBoolean("Buyuktur?", true);
+        // }
+        // else {
+        //     drive.tankDrive(0, 0);
+        //     SmartDashboard.putBoolean("Buyuktur?", false);
+        // }
+        double CR = getCorrectionRate() / 90;
+
+        drive.tankDrive(sideWheelsAngleVariable + driverController.getRawAxis(2) + CR, sideWheelsAngleVariable - driverController.getRawAxis(2) - CR);
+        //drive.tankDrive(sideWheelsAngleVariable + driverController.getRawAxis(2), sideWheelsAngleVariable - driverController.getRawAxis(2));
+
+
+        if(Math.abs(midWheelsAngleVariable) > 0.05) {midMaster.set(midWheelsAngleVariable * .5); }
+        else{midMaster.set(0);}
+
+        SmartDashboard.putNumber("SGP", SupposedGP);
+        SmartDashboard.putNumber("CGP", CurrentGP);
+
+        SmartDashboard.putNumber("Ratium Correctio", CR);
+        SmartDashboard.putNumber("Encoder Val Left", leftEncoder.getPosition());
+        SmartDashboard.putNumber("Encoder Val Right", rightEncoder.getPosition());
+        SmartDashboard.putNumber("Encoder Val Mid", midEncoder.getPosition());
+    }
+
+    public double getCorrectionRate(){
+        double firstOption, secondOption;
+        CurrentGP = getAlpha() + 180;
+
+        if(Math.abs(driverController.getRawAxis(2)) > 0.05){
+            SupposedGP = CurrentGP;
+            return 0;
+        }
+        else{
+            firstOption = SupposedGP - CurrentGP;
+            secondOption = 360-(firstOption);
+            if(Math.abs(firstOption)<Math.abs(secondOption)){return firstOption;}
+            else{return secondOption;}
+        }
     }
 
     public double getBeta(){
@@ -138,13 +175,9 @@ public class Chassis {
         SmartDashboard.putNumber("Cos B-A", kSide);
         SmartDashboard.putNumber("Sin B-A ", kMid);
 
-        sideWheelsAngleConstant = v2 * kSide;
-        midWheelsAngleConstant = v2 * kMid;
+        sideWheelsAngleVariable = v2 * kSide;
+        midWheelsAngleVariable = v2 * kMid;
     }
-
-    //***********************************************************
-    //AND THIS LINE, ALL ALL OTHER LINES ARE (somewhat) IRRELEVANT
-    //***********************************************************
 
     public void pidInit(){
 
@@ -179,6 +212,7 @@ public class Chassis {
         //Encoder
         leftEncoder = leftMaster.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
         rightEncoder = rightMaster.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
+        midEncoder = midMaster.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
 
         leftpid.setFeedbackDevice(leftEncoder);
         rightpid.setFeedbackDevice(rightEncoder);

@@ -7,12 +7,26 @@ public class Constants {
         public final static int idLeftSlave = 53;
         public final static int idRigthMaster = 51;
         public final static int idRightSlave =50;
-        public final static int idMidMaster = 5;
-        public final static int idMidSlave = 4;
+        public final static int idMidMaster = 57;
+        public final static int idMidSlave = 56;
+        public final static int idRightTelescope = 54;
+        public final static int idLeftTelescope = 55;
+        
 
-        public final static double lowerOutput = 0.4;
-        public final static double higherOutput = 0.8;
+        public final static double lowerOutput = 0.7;
+        public final static double higherOutput = 1;
 
+    }
+
+    public static class PneumaticsConstants{
+        public static int gripper1Fwd = 0;
+        public static int gripper1Bwd = 1;
+
+        public static int gripper2Fwd = 6;
+        public static int gripper2Bwd = 7;
+
+        public static int ankleFwd = 0;
+        public static int ankleBwd = 0;
     }
 
     public static class PIDConstants {
