@@ -66,16 +66,16 @@ public class Arm {
 
     public void runBoth(double speed){
         // armMotorLeft.set(speed);
-        armMotorRight.set(0.6);
+        armMotorRight.set(0.1);
         System.out.println("ileri");
-        armMotorLeft.set(0.6);
+        armMotorLeft.set(0.1);
     }
 
     public void runBothReverse(double speed){
         // armMotorLeft.set(-speed);
-        armMotorRight.set(-0.6);
+        armMotorRight.set(-0.1);
         System.out.println("geri");
-        armMotorLeft.set(-0.6);
+        armMotorLeft.set(-0.1);
     }
 
     public void holdBoth(){
