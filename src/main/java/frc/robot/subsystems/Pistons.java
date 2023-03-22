@@ -73,7 +73,7 @@ public class Pistons {
     }
 
     public void tempBwd(){
-        System.out.println("TEMP FWD");
+        System.out.println("TEMP BWD");
         gripper_fwd.set(false);
         gripper_bwd.set(true);
     }

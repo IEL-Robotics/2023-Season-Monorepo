@@ -18,7 +18,8 @@ public class Robot extends TimedRobot {
   public Pistons m_pistons = new Pistons(driverController);
 
   private final Compressor m_compressor = new Compressor(PneumaticsModuleType.CTREPCM);
-  private final PneumaticsControlModule m_pcm = new PneumaticsControlModule(31);
+  //private final PneumaticsControlModule m_pcm = new PneumaticsControlModule(1);
+  private final PneumaticsControlModule m_pcm = new PneumaticsControlModule();
 
   @Override
   public void robotInit() {

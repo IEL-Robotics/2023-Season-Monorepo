@@ -35,7 +35,7 @@ public class Arm {
         armMotorLeft.setInverted(false);
         armMotorRight.setInverted(false);
         
-        armMotorRight.follow(armMotorLeft);
+        //armMotorRight.follow(armMotorLeft);
         // leftPid = armMotorLeft.getPIDController();
         // rightPid = armMotorRight.getPIDController();
 
@@ -46,10 +46,10 @@ public class Arm {
     }
 
     public void armPeriodic(){
-        if(driverController.getRawButton(7)){runBoth(driverController.getL2Axis());} //L2
-        else if(driverController.getRawButton(8)){runBothReverse(driverController.getR2Axis());} //R2
-        //else if(driverController.getRawButton(3)){runJustLeft();} //Circle
-        //else if(driverController.getRawButton(1)){runJustRight();}//SqUARE
+        if(driverController.getRawButton(7)){runLeft();} //L2
+        else if(driverController.getRawButton(8)){runRight();} //R2
+        else if(driverController.getRawButton(5)){runLeftReverse();} //Circle
+        else if(driverController.getRawButton(6)){runRightReverse();}//SqUARE
         else{holdBoth();}
 
         if(driverController.getRawButtonReleased(4)){setThatPosition(500);}
@@ -64,33 +64,29 @@ public class Arm {
 
     }
 
-    public void runBoth(double speed){
-        // armMotorLeft.set(speed);
-        armMotorRight.set(0.1);
-        System.out.println("ileri");
-        armMotorLeft.set(0.1);
+    public void runRight(){
+        armMotorRight.set(1);
+        System.out.println("sağ ilerici");
     }
 
-    public void runBothReverse(double speed){
-        // armMotorLeft.set(-speed);
-        armMotorRight.set(-0.1);
-        System.out.println("geri");
-        armMotorLeft.set(-0.1);
+    public void runRightReverse(){
+        armMotorRight.set(-1);
+        System.out.println("sağ gerici");
+    }
+
+    public void runLeft(){
+        armMotorLeft.set(0.6);
+        System.out.println("sol ilerici");
+    }
+
+    public void runLeftReverse(){
+        armMotorLeft.set(-0.6);
+        System.out.println("sol gerici");
     }
 
     public void holdBoth(){
         armMotorLeft.set(0);
         armMotorRight.set(0);
-    }
-
-    public void runJustLeft(){
-        System.out.println("Supposedly Left");
-        armMotorLeft.set(0.2);
-    }
-
-    public void runJustRight(){
-        System.out.println("Supposedly Right");
-        armMotorRight.set(0.2);
     }
 
     public void setThatPosition(double posVal){
