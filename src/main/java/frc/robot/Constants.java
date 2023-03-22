@@ -10,7 +10,7 @@ public class Constants {
         public final static int idMidMaster = 57;
         public final static int idMidSlave = 56;
         public final static int idRightTelescope = 54;
-        public final static int idLeftTelescope = 55;
+        public final static int idLeftTelescope = 55; //55ti
         
 
         public final static double lowerOutput = 0.7;
