@@ -12,8 +12,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ChassisConstants;
 
 public class Arm {
-    private CANSparkMax armMotorLeft = new CANSparkMax(ChassisConstants.idLeftTelescope,MotorType.kBrushless);
-    private CANSparkMax armMotorRight = new CANSparkMax(ChassisConstants.idRightTelescope,MotorType.kBrushless);
+    private CANSparkMax armExtend = new CANSparkMax(ChassisConstants.idLeftTelescope,MotorType.kBrushless);  // arm extend
+    private CANSparkMax armRaise = new CANSparkMax(ChassisConstants.idRightTelescope,MotorType.kBrushless); // arm raise lower
 
     private RelativeEncoder armLeftEncoder;
     private RelativeEncoder armRightEncoder;
@@ -32,8 +32,8 @@ public class Arm {
     }
 
     public void armInit(){
-        armMotorLeft.setInverted(false);
-        armMotorRight.setInverted(false);
+        armExtend.setInverted(false);
+        armRaise.setInverted(false);
         
         //armMotorRight.follow(armMotorLeft);
         // leftPid = armMotorLeft.getPIDController();
@@ -41,8 +41,8 @@ public class Arm {
 
         pidController.setTolerance(2);
 
-        armLeftEncoder = armMotorLeft.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
-        armRightEncoder = armMotorRight.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
+        armLeftEncoder = armExtend.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
+        armRightEncoder = armRaise.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
     }
 
     public void armPeriodic(){
@@ -65,28 +65,30 @@ public class Arm {
     }
 
     public void runRight(){
-        armMotorRight.set(1);
+        armRaise.set(1);
+        armExtend.set(0.3); // TODO: change proportion
         System.out.println("sağ ilerici");
     }
 
     public void runRightReverse(){
-        armMotorRight.set(-1);
+        armRaise.set(-1);
+        armExtend.set(-0.3); // TODO: change proportion
         System.out.println("sağ gerici");
     }
 
     public void runLeft(){
-        armMotorLeft.set(0.6);
+        armExtend.set(0.6);
         System.out.println("sol ilerici");
     }
 
     public void runLeftReverse(){
-        armMotorLeft.set(-0.6);
+        armExtend.set(-0.6);
         System.out.println("sol gerici");
     }
 
     public void holdBoth(){
-        armMotorLeft.set(0);
-        armMotorRight.set(0);
+        armExtend.set(0);
+        armRaise.set(0);
     }
 
     public void setThatPosition(double posVal){
@@ -96,7 +98,7 @@ public class Arm {
     }
 
     public void startTheLoop(){
-        armMotorRight.set(pidController.calculate(armRightEncoder.getPosition()));
+        armRaise.set(pidController.calculate(armRightEncoder.getPosition()));
         if(Math.abs(setPoint - armRightEncoder.getPosition())<3){
             LoopIsOn = false;
         }
