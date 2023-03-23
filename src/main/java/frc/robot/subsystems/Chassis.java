@@ -72,6 +72,7 @@ public class Chassis {
 
         drive.setMaxOutput(ChassisConstants.lowerOutput);
         if(driverController.getRawButton(6)){drive.setMaxOutput(ChassisConstants.higherOutput);}
+        
 
         SmartDashboard.putNumber("Gyro Rate", gyro.getRate());
         SmartDashboard.putNumber("Pitch", gyro.getPitch()); //Charge Station
@@ -80,7 +81,10 @@ public class Chassis {
         SmartDashboard.putNumber("Relative Pos", gyro.getYaw()-startAlpha);
         SmartDashboard.putNumber("Roll", gyro.getRoll());
 
-        findGyroConstants();
+        findGyroVariables();
+        if(driverController.getTouchpadPressed()){
+            startAlpha = gyro.getYaw();
+        }
 
         SmartDashboard.putNumber("SideWAC", sideWheelsAngleVariable);
         SmartDashboard.putNumber("MidWAC", midWheelsAngleVariable);
@@ -165,7 +169,7 @@ public class Chassis {
         return alphaAngle;
     }
 
-    public void findGyroConstants(){
+    public void findGyroVariables(){
         double b = getBeta();
         double a = getAlpha();
 
