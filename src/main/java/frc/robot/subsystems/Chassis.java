@@ -23,8 +23,11 @@ public class Chassis {
     private CANSparkMax midMaster = new CANSparkMax(ChassisConstants.idMidMaster, MotorType.kBrushless);
     private CANSparkMax midSlave = new CANSparkMax(ChassisConstants.idMidSlave, MotorType.kBrushless);
    
+    private boolean tunaMode = false;
+
     private double CurrentGP = 180;
     private double SupposedGP = 180;
+    private double prev_error = 0;
 
     private DifferentialDrive drive;
 
@@ -47,10 +50,19 @@ public class Chassis {
 
     public void chassisInit(){
 
-        leftMaster.setIdleMode(IdleMode.kCoast);
-        rightMaster.setIdleMode(IdleMode.kCoast);
-        leftSlave.setIdleMode(IdleMode.kCoast);
-        rightSlave.setIdleMode(IdleMode.kCoast);
+        // leftMaster.setIdleMode(IdleMode.kCoast);
+        // rightMaster.setIdleMode(IdleMode.kCoast);
+        // leftSlave.setIdleMode(IdleMode.kCoast);
+        // rightSlave.setIdleMode(IdleMode.kCoast);
+        // midMaster.setIdleMode(IdleMode.kCoast);
+        // midSlave.setIdleMode(IdleMode.kCoast);
+
+        leftMaster.setIdleMode(IdleMode.kBrake);
+        rightMaster.setIdleMode(IdleMode.kBrake);
+        leftSlave.setIdleMode(IdleMode.kBrake);
+        rightSlave.setIdleMode(IdleMode.kBrake);
+        midMaster.setIdleMode(IdleMode.kBrake);
+        midSlave.setIdleMode(IdleMode.kBrake);  
 
         leftMaster.setInverted(false);
         rightMaster.setInverted(true); //idk why but it works this way, my bad
@@ -59,6 +71,10 @@ public class Chassis {
         leftSlave.follow(leftMaster);
         rightSlave.follow(rightMaster);
         midSlave.follow(midMaster);
+
+        leftEncoder = leftMaster.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
+        rightEncoder = rightMaster.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
+        midEncoder = midMaster.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
 
         pidInit();
     
@@ -72,55 +88,26 @@ public class Chassis {
         drive.setMaxOutput(ChassisConstants.lowerOutput);
         if(driverController.getRawButton(6)){drive.setMaxOutput(ChassisConstants.higherOutput);}
 
-        SmartDashboard.putNumber("Gyro Rate", gyro.getRate());
         SmartDashboard.putNumber("Pitch", gyro.getPitch()); //Charge Station
-        SmartDashboard.putNumber("Start Alpha Pos", startAlpha);
-        SmartDashboard.putNumber("Yaw", gyro.getYaw());
-        SmartDashboard.putNumber("Relative Pos", gyro.getYaw()-startAlpha);
-        SmartDashboard.putNumber("Roll", gyro.getRoll());
 
         findGyroConstants();
 
-        SmartDashboard.putNumber("SideWAC", sideWheelsAngleVariable);
-        SmartDashboard.putNumber("MidWAC", midWheelsAngleVariable);
+        if(driverController.getRawButtonReleased(14)){toggleCartesian();}
 
-        SmartDashboard.putNumber("Axis2", driverController.getRawAxis(2));
-
-        // leftMaster.set(sideWheelsAngleConstant + driverController.getRawAxis(2));
-        // rightMaster.set(sideWheelsAngleConstant - driverController.getRawAxis(2));        
-
-        //*****/
-        // if(Math.abs(sideWheelsAngleVariable) > 0.05){
-        //     drive.arcadeDrive(sideWheelsAngleVariable, driverController.getRawAxis(2));
-        //     SmartDashboard.putBoolean("Buyuktur?", true);
-        //     // leftMaster.set(sideWheelsAngleVariable * .5 + driverController.getRawAxis(2) * .5);
-        //     // rightMaster.set(sideWheelsAngleVariable * .5 - driverController.getRawAxis(2) * .5);
-        // }
-        // else {
-        //     if(Math.abs(driverController.getRawAxis(2))>0.05){
-        //         leftMaster.set(driverController.getRawAxis(2) * .5);
-        //         rightMaster.set(-driverController.getRawAxis(2) * .5);
-        //     }
-        //     SmartDashboard.putBoolean("Buyuktur?", false);
-        // }
-        /*****/
-
-        // if(Math.abs(sideWheelsAngleVariable) > 0.05){
-        //     drive.tankDrive(sideWheelsAngleVariable + driverController.getRawAxis(2), sideWheelsAngleVariable - driverController.getRawAxis(2));
-        //     SmartDashboard.putBoolean("Buyuktur?", true);
-        // }
-        // else {
-        //     drive.tankDrive(0, 0);
-        //     SmartDashboard.putBoolean("Buyuktur?", false);
-        // }
         double CR = getCorrectionRate() / 90;
 
-        drive.tankDrive(sideWheelsAngleVariable + driverController.getRawAxis(2) + CR, sideWheelsAngleVariable - driverController.getRawAxis(2) - CR);
-        //drive.tankDrive(sideWheelsAngleVariable + driverController.getRawAxis(2), sideWheelsAngleVariable - driverController.getRawAxis(2));
+        if(tunaMode == false){
+            drive.tankDrive(sideWheelsAngleVariable + driverController.getRawAxis(2) + CR, sideWheelsAngleVariable - driverController.getRawAxis(2) - CR);
 
+            if(Math.abs(midWheelsAngleVariable) > 0.05) {midMaster.set(midWheelsAngleVariable * .5); }
+            else{midMaster.set(0);}
+        }
+        else{
+            // + - CR ekle
+            drive.tankDrive(-driverController.getRawAxis(1), -driverController.getRawAxis(1));
+            midMaster.set(driverController.getRawAxis(0));
+        }
 
-        if(Math.abs(midWheelsAngleVariable) > 0.05) {midMaster.set(midWheelsAngleVariable * .5); }
-        else{midMaster.set(0);}
 
         SmartDashboard.putNumber("SGP", SupposedGP);
         SmartDashboard.putNumber("CGP", CurrentGP);
@@ -132,7 +119,7 @@ public class Chassis {
     }
 
     public double getCorrectionRate(){
-        double firstOption, secondOption;
+        double firstOption, secondOption, error, integral = 0, derivative = 0, output;
         CurrentGP = getAlpha() + 180;
 
         if(Math.abs(driverController.getRawAxis(2)) > 0.05){
@@ -141,10 +128,22 @@ public class Chassis {
         }
         else{
             firstOption = SupposedGP - CurrentGP;
-            secondOption = 360-(firstOption);
-            if(Math.abs(firstOption)<Math.abs(secondOption)){return firstOption;}
-            else{return secondOption;}
+            secondOption = 360-Math.abs(firstOption);
+            if(Math.abs(firstOption)<Math.abs(secondOption)){error = firstOption;}
+            else{error = secondOption;}
+
+            integral += error;
+            derivative -= error;
+            output = (0.5*error) + (0.5*integral) + (0.5*derivative);
+            prev_error = error;
+            return output;
         }
+        // else{
+        //     firstOption = SupposedGP - CurrentGP;
+        //     secondOption = 360-Math.abs(firstOption);
+        //     if(Math.abs(firstOption)<Math.abs(secondOption)){return firstOption;}
+        //     else{return secondOption;}
+        // }
     }
 
     public double getBeta(){
@@ -168,12 +167,6 @@ public class Chassis {
         double v0 = Math.pow(driverController.getRawAxis(0), 2);
         double v1 = Math.pow(driverController.getRawAxis(1), 2);
         double v2 = Math.sqrt(v0 + v1);
-
-        SmartDashboard.putNumber("B", b);
-        SmartDashboard.putNumber("A", a); 
-        
-        SmartDashboard.putNumber("Cos B-A", kSide);
-        SmartDashboard.putNumber("Sin B-A ", kMid);
 
         sideWheelsAngleVariable = v2 * kSide;
         midWheelsAngleVariable = v2 * kMid;
@@ -210,9 +203,9 @@ public class Chassis {
         SmartDashboard.putNumber("Set Rotations", 0);
 
         //Encoder
-        leftEncoder = leftMaster.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
-        rightEncoder = rightMaster.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
-        midEncoder = midMaster.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
+        // leftEncoder = leftMaster.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
+        // rightEncoder = rightMaster.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
+        // midEncoder = midMaster.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
 
         leftpid.setFeedbackDevice(leftEncoder);
         rightpid.setFeedbackDevice(rightEncoder);
@@ -248,12 +241,14 @@ public class Chassis {
 
     public void setGyroStartingAngle(){
         startAlpha = gyro.getYaw();
-
         // CurrentGP = getAlpha() + 180;
         // SupposedGP = CurrentGP;
-
         CurrentGP = 180;
         SupposedGP = 180;
     }
 
+    public void toggleCartesian(){
+        tunaMode = !tunaMode;
+    }
+    
 }

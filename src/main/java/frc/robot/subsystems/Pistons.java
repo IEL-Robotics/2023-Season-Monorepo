@@ -14,8 +14,9 @@ public class Pistons {
     
     //private DoubleSolenoid ankle_piston = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, PneumaticsConstants.ankleFwd, PneumaticsConstants.ankleBwd);
 
-    private Solenoid gripper_fwd = new Solenoid(PneumaticsModuleType.CTREPCM, 6);
-    private Solenoid gripper_bwd = new Solenoid(PneumaticsModuleType.CTREPCM, 7);
+    // private Solenoid gripper_fwd = new Solenoid(PneumaticsModuleType.CTREPCM, 6);
+    // private Solenoid gripper_bwd = new Solenoid(PneumaticsModuleType.CTREPCM, 7);
+    private final DoubleSolenoid m_dbl_sld = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 6, 7);
 
 
     private PS4Controller copilotController;
@@ -68,14 +69,16 @@ public class Pistons {
 
     public void tempFwd(){
         System.out.println("TEMP FWD");
-        gripper_fwd.set(true);
-        gripper_bwd.set(false);
+        // gripper_fwd.set(true);
+        // gripper_bwd.set(false);
+        m_dbl_sld.set(Value.kForward);
     }
 
     public void tempBwd(){
         System.out.println("TEMP BWD");
-        gripper_fwd.set(false);
-        gripper_bwd.set(true);
+        // gripper_fwd.set(false);
+        // gripper_bwd.set(true);
+        m_dbl_sld.set(Value.kReverse);
     }
 
     public void pistonPeriodic(){
