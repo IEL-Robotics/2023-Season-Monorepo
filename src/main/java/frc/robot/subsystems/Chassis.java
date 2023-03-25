@@ -25,7 +25,6 @@ public class Chassis {
    
     private double CurrentGP = 180;
     private double SupposedGP = 180;
-    private double prev_error = 0;
 
     private DifferentialDrive drive;
 
@@ -133,7 +132,7 @@ public class Chassis {
     }
 
     public double getCorrectionRate(){
-        double errorOption1, errorOption2, error,integral = 0, ableitung=0, ausgang;
+        double firstOption, secondOption;
         CurrentGP = getAlpha() + 180;
 
         if(Math.abs(driverController.getRawAxis(2)) > 0.05){
@@ -141,16 +140,10 @@ public class Chassis {
             return 0;
         }
         else{
-            errorOption1 = SupposedGP - CurrentGP;
-            errorOption2 = 360-(errorOption1);
-            if(Math.abs(errorOption1)<Math.abs(errorOption2)){error = errorOption1;}
-            else{error = errorOption2;}
-
-            integral += error;
-            ableitung -= error;
-            ausgang = (0.5* error) + (0.5 * integral) + (0.5 * ableitung);
-            prev_error = error;
-            return ausgang;
+            firstOption = SupposedGP - CurrentGP;
+            secondOption = 360-(firstOption);
+            if(Math.abs(firstOption)<Math.abs(secondOption)){return firstOption;}
+            else{return secondOption;}
         }
     }
 
