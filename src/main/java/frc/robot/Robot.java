@@ -1,13 +1,12 @@
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.PneumaticsControlModule;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Chassis;
 import frc.robot.subsystems.Pistons;
@@ -26,29 +25,33 @@ public class Robot extends TimedRobot {
   private final Compressor m_compressor = new Compressor(PneumaticsModuleType.CTREPCM);
   private final PneumaticsControlModule m_pcm = new PneumaticsControlModule();
 
-  private SequentialCommandGroup m_autocommand;
+  private int autonomusSteps = 1;
+  private double[] coordinates = {0, 0, 0};
 
   @Override
   public void robotInit() {
     m_chassis.chassisInit();
     m_arm.armInit();
     m_pistons.pistonInit();
+    CameraServer.startAutomaticCapture();
   }
 
   @Override
   public void robotPeriodic() {}
 
   @Override
-  public void autonomousInit() {}
+  public void autonomousInit() {
+    m_chassis.setGyroStartingAngle();
+  }
 
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    SmartDashboard.putNumber("Steps", autonomusSteps);
+    autonomousBasic();
+  }
 
   @Override
   public void teleopInit() {
-    if(m_autocommand != null) {
-      m_autocommand.cancel();
-    }
     m_pcm.enableCompressorDigital();
     m_compressor.enableDigital();
     m_chassis.setGyroStartingAngle();
@@ -59,7 +62,7 @@ public class Robot extends TimedRobot {
     m_chassis.chassisDriving();
     m_arm.armPeriodic();
     m_pistons.pistonPeriodic();
-    m_vision.getFieldPosition();
+    //m_vision.getFieldPosition();
   }
 
   @Override
@@ -79,4 +82,63 @@ public class Robot extends TimedRobot {
 
   @Override
   public void simulationPeriodic() {}
+
+  //AUTONOMOUS
+
+  public void autonomousBasic(){
+    if(autonomusSteps==0){
+      m_chassis.setTravelVal(1);
+      autonomusSteps+=1;
+    }
+    else if(autonomusSteps==1){
+      if(m_chassis.travelThisMuch()){autonomusSteps+=1;}
+    }
+    else if(autonomusSteps==2){
+      m_chassis.setTravelVal(-4);
+      autonomusSteps+=1;
+
+    }
+    else if(autonomusSteps==3){
+      if(m_chassis.travelThisMuch()){autonomusSteps+=1;}
+    }
+  }
+
+  public void autonomousComplex(){
+    if(autonomusSteps==0){
+      coordinates = m_vision.getFieldPosition();
+      if(coordinates[0] != 0){autonomusSteps+=1;}
+    }
+    else if(autonomusSteps==1){
+      if(true){m_chassis.setRotate90Degrees(1); autonomusSteps+=1;}
+      else if(false){m_chassis.setRotate90Degrees(-1); autonomusSteps+=1;} //deadcode, for now    
+    }
+    else if(autonomusSteps==2){
+      if(m_chassis.completeRotation()==false){autonomusSteps+=1;}
+    }
+    else if(autonomusSteps==3){
+      m_chassis.setTravelVal(3);
+      autonomusSteps+=1;
+    }
+    else if(autonomusSteps==4){
+      if(m_chassis.travelThisMuch()==true){autonomusSteps+=1;}
+    }
+    else if(autonomusSteps==5){
+      if(true){m_chassis.setRotate90Degrees(1); autonomusSteps+=1;}
+      else if(false){m_chassis.setRotate90Degrees(-1); autonomusSteps+=1;}
+    }
+    else if(autonomusSteps==6){
+      if(m_chassis.completeRotation()==false){autonomusSteps+=1;}
+    }
+    else if(autonomusSteps==7){
+      m_chassis.setTravelVal(1);
+      autonomusSteps+=1;
+    }
+    else if(autonomusSteps==8){
+      if(m_chassis.travelThisMuch()==true){autonomusSteps+=1;}
+    }
+    else if(autonomusSteps>8){
+      m_chassis.alignThePitch();
+    }
+  }
+
 }

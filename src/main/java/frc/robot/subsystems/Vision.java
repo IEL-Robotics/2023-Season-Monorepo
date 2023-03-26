@@ -23,8 +23,7 @@ public class Vision {
 
     private AprilTagFieldLayout aprilTagFieldLayout;
 
-    private Transform3d camera2Robot = new Transform3d(new Translation3d(0.5, 0.5, 0.5), new Rotation3d(0, 0, 0)); // madeup
-                                                                                                                   // values
+    private Transform3d camera2Robot = new Transform3d(new Translation3d(0.5, 0.5, 0.5), new Rotation3d(0, 0, 0)); // madeup                                                                                                          // values
 
     private PhotonPipelineResult result;
     private PhotonTrackedTarget target;
