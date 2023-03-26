@@ -39,10 +39,15 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {}
 
   @Override
-  public void autonomousInit() {}
+  public void autonomousInit() {
+    m_chassis.setGyroStartingAngle();
+    m_chassis.otonomsik();
+  }
 
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    m_chassis.otonomyarak();
+  }
 
   @Override
   public void teleopInit() {

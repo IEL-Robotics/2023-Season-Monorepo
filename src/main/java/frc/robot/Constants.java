@@ -42,4 +42,10 @@ public class Constants {
     public static class ControllerConstants {
         public final static int turboButton = 6;
     }
+
+    public static class AutonomousConstants{
+        
+    }
+        
+    
 }
