@@ -8,6 +8,7 @@ import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -27,7 +28,12 @@ public class Chassis {
 
     private double CurrentGP = 180;
     private double SupposedGP = 180;
+    
     private double prev_error = 0;
+    private double  integral = 0;
+    private double derivative = 0;
+
+    private int step = 0;
 
     private DifferentialDrive drive;
 
@@ -43,6 +49,13 @@ public class Chassis {
 
     private double sideWheelsAngleVariable;
     private double midWheelsAngleVariable;
+
+    private double distance;
+
+    private PIDController leftPidController = new PIDController(0.2, 0.3, 0.05);
+    private PIDController rightPidController = new PIDController(0.2, 0.3, 0.05);
+
+    private double leftSetPoint, rightSetPoint;
 
     public Chassis(PS4Controller driverController){
         this.driverController = driverController;
@@ -104,7 +117,7 @@ public class Chassis {
         }
         else{
             // + - CR ekle
-            drive.tankDrive(-driverController.getRawAxis(1), -driverController.getRawAxis(1));
+            drive.tankDrive(-driverController.getRawAxis(1) + driverController.getRawAxis(2), -driverController.getRawAxis(1) - driverController.getRawAxis(2));
             midMaster.set(driverController.getRawAxis(0));
         }
 
@@ -119,7 +132,7 @@ public class Chassis {
     }
 
     public double getCorrectionRate(){
-        double firstOption, secondOption, error, integral = 0, derivative = 0, output;
+        double firstOption, secondOption, error, output;
         CurrentGP = getAlpha() + 180;
 
         if(Math.abs(driverController.getRawAxis(2)) > 0.05){
@@ -133,7 +146,7 @@ public class Chassis {
             else{error = secondOption;}
 
             integral += error;
-            derivative -= error;
+            derivative = prev_error- error;
             output = (0.5*error) + (0.5*integral) + (0.5*derivative);
             prev_error = error;
             return output;
@@ -251,4 +264,93 @@ public class Chassis {
         tunaMode = !tunaMode;
     }
     
+
+    public void otonomsik() {
+
+        startAlpha = gyro.getYaw();
+        SupposedGP = startAlpha - 90;
+    }
+
+    public void otonomyarak(){
+        CurrentGP = gyro.getYaw();
+
+
+        // Rotate robot 90 degrees CCW(?)
+        if (step == 0) {
+            double firstOption, secondOption, error,  output;
+            firstOption = SupposedGP - CurrentGP;
+            secondOption = 360-Math.abs(firstOption);
+            if(Math.abs(firstOption)<Math.abs(secondOption)){error = firstOption;}
+            else{error = secondOption;}
+
+            integral += error;
+            derivative = prev_error - error;
+            output = (0.5*error) + (0.5*integral) + (0.5*derivative);
+            prev_error = error;
+            drive.tankDrive(output, -output);
+            
+            
+            //Prepare for next step
+            if (error <= 3) {
+                step++;
+                distance = 0; // TODO: Set distance
+                leftSetPoint = leftEncoder.getPosition() + distance;
+                rightSetPoint = rightEncoder.getPosition() + distance;
+                leftPidController.setSetpoint(leftSetPoint);
+                rightPidController.setSetpoint(rightSetPoint);
+            } 
+        }
+        //Move forward through the given distance 
+        else if(step == 1){
+            leftMaster.set(leftPidController.calculate(leftEncoder.getPosition()));
+            rightMaster.set(rightPidController.calculate(rightEncoder.getPosition()));
+
+            if((Math.abs(leftSetPoint- leftEncoder.getPosition())<0.15) && (Math.abs(rightSetPoint- rightEncoder.getPosition())<0.15)){
+                step++;
+            }
+        }
+        // Rotate robot 90 degrees CW(?)
+        else if(step == 2){
+            double firstOption, secondOption, error,  output;
+            firstOption = startAlpha - CurrentGP;
+            secondOption = 360-Math.abs(firstOption);
+            if(Math.abs(firstOption)<Math.abs(secondOption)){error = firstOption;}
+            else{error = secondOption;}
+
+            integral += error;
+            derivative = prev_error - error;
+            output = (0.5*error) + (0.5*integral) + (0.5*derivative);
+            prev_error = error;
+            drive.tankDrive(output, -output);
+            
+            
+            //Prepare for next step
+            if (error <= 3) {
+                step++;
+            } 
+        }
+
+        //Move forward until ramp
+        else if(step == 3){
+            leftMaster.set(0.3);
+            rightMaster.set(0.3);
+            
+            // Detect ramp
+            if(Math.abs(gyro.getPitch()) >= 7){
+                step++;
+            }
+        }
+        // Balance!
+        else if (step == 4) {
+            if(gyro.getPitch() < -3){
+                leftMaster.set(0.075);
+                rightMaster.set(0.075);
+            }
+            if(gyro.getPitch() > 3){
+                leftMaster.set(-0.075);
+                rightMaster.set(-0.075);
+            }
+        }
+    }
+
 }
