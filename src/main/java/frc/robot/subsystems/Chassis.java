@@ -294,8 +294,9 @@ public class Chassis {
 
     private PIDController leftPidController = new PIDController(0.2, 0.3, 0.05);
     private PIDController rightPidController = new PIDController(0.2, 0.3, 0.05);
+    private PIDController midPidController = new PIDController(0.2, 0.3, 0.05);
 
-    private double leftSetPoint, rightSetPoint;
+    private double leftSetPoint, rightSetPoint, midSetPoint;
 
     public void setTravelVal(double distance) {
         leftSetPoint = leftEncoder.getPosition() + distance;
@@ -310,6 +311,22 @@ public class Chassis {
 
         if ((Math.abs(leftSetPoint - leftEncoder.getPosition()) < 0.15)
                 && (Math.abs(rightSetPoint - rightEncoder.getPosition()) < 0.15)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void setTravelValMiddle(double distance) {
+        midSetPoint = midEncoder.getPosition() + distance;
+        midPidController.setSetpoint(midSetPoint);
+    }
+
+    public boolean travelThisMuchMiddle() {
+        leftMaster.set(midPidController.calculate(midEncoder.getPosition()));
+
+
+        if ((Math.abs(midSetPoint - midEncoder.getPosition()) < 0.15)) {
             return true;
         } else {
             return false;
