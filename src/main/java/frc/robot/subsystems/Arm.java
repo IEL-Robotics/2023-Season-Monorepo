@@ -17,7 +17,7 @@ public class Arm {
     private RelativeEncoder armLeftEncoder;
     private RelativeEncoder armRightEncoder;
 
-    private PIDController pidController = new PIDController(0.2, 0.3, 0.05);
+    private PIDController pidController = new PIDController(0.01, 0.000, 0.02);
     // private SparkMaxPIDController rightPid, leftPid;
 
 
@@ -44,6 +44,7 @@ public class Arm {
         armRightEncoder = armMotorRight.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
     }
 
+    private int currentPOVVal = -1;
     public void armPeriodic(){
         if(driverController.getRawButton(7)){runLeft();} //L2
         else if(driverController.getRawButton(8)){runRight();} //R2
@@ -51,10 +52,20 @@ public class Arm {
         else if(driverController.getRawButton(6)){runRightReverse();}//R1
         else{holdBoth();}
 
-        if(driverController.getRawButtonReleased(3)){setThatPosition(0);}
+        if(driverController.getRawButtonReleased(3)){setThatPosition(0);} //Start Position
         else if(driverController.getRawButtonReleased(4)){setThatPosition(-20);}
         else if(driverController.getRawButtonReleased(1)){setThatPosition(-50);}
-
+        else if(driverController.getRawButtonReleased(2)){setThatPosition(-30);}
+        else if(driverController.getPOV()==0 && currentPOVVal!=0){
+            currentPOVVal = 0;
+            setThatPosition(-10);}
+        else if(driverController.getPOV()==90 && currentPOVVal!=90){
+            currentPOVVal = 90;
+            setThatPosition(-10);}
+        else if(driverController.getPOV()==270 && currentPOVVal!=270){
+            currentPOVVal = 270;
+            setThatPosition(-10);
+        }
 
         if(LoopIsOn){
             goThatPosition();
@@ -67,12 +78,12 @@ public class Arm {
     }
 
     public void runRight(){
-        armMotorRight.set(0.75);
+        armMotorRight.set(0.45);
         System.out.println("sağ ilerici");
     }
 
     public void runRightReverse(){
-        armMotorRight.set(-0.75);
+        armMotorRight.set(-0.45);
         System.out.println("sağ gerici");
     }
 
@@ -97,10 +108,12 @@ public class Arm {
         LoopIsOn = true;
     }
 
-    public void goThatPosition(){
+    public void goThatPosition(){ //setlerken ipi sal
         armMotorLeft.set(pidController.calculate(armLeftEncoder.getPosition()));
+        // armMotorRight.set(0.1);
         if(Math.abs(setPoint - armLeftEncoder.getPosition())<3){
             LoopIsOn = false;
+            armMotorLeft.set(0);
         }
     }
 }
