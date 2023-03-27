@@ -283,7 +283,7 @@ public class Chassis {
     }
 
     public boolean completeRotation() {
-        double CR = getCorrectionRate() / 90;
+        double CR = getFinalCR();
         drive.tankDrive(CR, -CR);
         if (Math.abs(SupposedGP - CurrentGP) <= 5) {
             return false;
@@ -318,11 +318,11 @@ public class Chassis {
 
     public void alignThePitch() {
         if (gyro.getPitch() > 5) {
-            rightMaster.set(-0.1);
-            leftMaster.set(-0.1);
+            rightMaster.set(-0.4);
+            leftMaster.set(-0.4);
         } else if (gyro.getPitch() < -5) {
-            rightMaster.set(0.1);
-            leftMaster.set(0.1);
+            rightMaster.set(0.4);
+            leftMaster.set(0.4);
         } else {
             rightMaster.set(0);
             leftMaster.set(0);

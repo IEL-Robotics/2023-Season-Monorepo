@@ -96,15 +96,10 @@ public class Robot extends TimedRobot {
     else if(autonomusSteps==2){
       m_chassis.setTravelVal(-4);
       autonomusSteps+=1;
-
     }
     else if(autonomusSteps==3){
       if(m_chassis.travelThisMuch()){autonomusSteps+=1;}
     }
-
-    //?
-    
-    //?
   }
 
   public void autonomousComplex(){
@@ -113,34 +108,44 @@ public class Robot extends TimedRobot {
       if(coordinates[0] != 0){autonomusSteps+=1;}
     }
     else if(autonomusSteps==1){
+      m_chassis.setTravelVal(-5);
+      autonomusSteps+=1;
+    }
+    else if(autonomusSteps==2){
+      if(m_chassis.travelThisMuch()==true){autonomusSteps+=1;}
+    }
+    else if(autonomusSteps==3){
       if(true){m_chassis.setRotate90Degrees(1); autonomusSteps+=1;}
       else if(false){m_chassis.setRotate90Degrees(-1); autonomusSteps+=1;} //deadcode, for now    
     }
-    else if(autonomusSteps==2){
-      if(m_chassis.completeRotation()==false){autonomusSteps+=1;}
-    }
-    else if(autonomusSteps==3){
-      m_chassis.setTravelVal(3);
-      autonomusSteps+=1;
-    }
     else if(autonomusSteps==4){
-      if(m_chassis.travelThisMuch()==true){autonomusSteps+=1;}
+      if(m_chassis.completeRotation()==false){autonomusSteps+=1;}
     }
     else if(autonomusSteps==5){
-      if(true){m_chassis.setRotate90Degrees(1); autonomusSteps+=1;}
-      else if(false){m_chassis.setRotate90Degrees(-1); autonomusSteps+=1;}
-    }
-    else if(autonomusSteps==6){
-      if(m_chassis.completeRotation()==false){autonomusSteps+=1;}
-    }
-    else if(autonomusSteps==7){
-      m_chassis.setTravelVal(1);
+      m_chassis.setTravelVal(2);
       autonomusSteps+=1;
     }
-    else if(autonomusSteps==8){
+    else if(autonomusSteps==6){
       if(m_chassis.travelThisMuch()==true){autonomusSteps+=1;}
     }
-    else if(autonomusSteps>8){
+    else if(autonomusSteps==7){
+      if(m_chassis.travelThisMuch()==true){autonomusSteps+=1;}
+    }
+    else if(autonomusSteps==8){
+      if(true){m_chassis.setRotate90Degrees(-1); autonomusSteps+=1;}
+      else if(false){m_chassis.setRotate90Degrees(1); autonomusSteps+=1;} //deadcode, for now    
+    }
+    else if(autonomusSteps==9){
+      if(m_chassis.completeRotation()==false){autonomusSteps+=1;}
+    }
+    else if(autonomusSteps==10){
+      m_chassis.setTravelVal(4);
+      autonomusSteps+=1;
+    }
+    else if(autonomusSteps==11){
+      if(m_chassis.travelThisMuch()==true){autonomusSteps+=1;}
+    }
+    else if(autonomusSteps>11){
       m_chassis.alignThePitch();
     }
   }
