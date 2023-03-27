@@ -57,13 +57,6 @@ public class Chassis {
         midMaster.setIdleMode(IdleMode.kBrake);
         midSlave.setIdleMode(IdleMode.kCoast);
 
-        // leftMaster.setIdleMode(IdleMode.kBrake);
-        // rightMaster.setIdleMode(IdleMode.kBrake);
-        // leftSlave.setIdleMode(IdleMode.kBrake);
-        // rightSlave.setIdleMode(IdleMode.kBrake);
-        // midMaster.setIdleMode(IdleMode.kBrake);
-        // midSlave.setIdleMode(IdleMode.kBrake);
-
         leftMaster.setInverted(false);
         rightMaster.setInverted(true); // idk why but it works this way, my bad
         midMaster.setInverted(false);
@@ -216,14 +209,6 @@ public class Chassis {
         SmartDashboard.putNumber("Max Output", PIDConstants.kMaxOutput);
         SmartDashboard.putNumber("Min Output", PIDConstants.kMinOutput);
         SmartDashboard.putNumber("Set Rotations", 0);
-
-        // Encoder
-        // leftEncoder = leftMaster.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor,
-        // 42);
-        // rightEncoder =
-        // rightMaster.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
-        // midEncoder = midMaster.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor,
-        // 42);
 
         leftpid.setFeedbackDevice(leftEncoder);
         rightpid.setFeedbackDevice(rightEncoder);

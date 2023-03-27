@@ -36,16 +36,17 @@ public class Vision {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        targetTags();
     }
 
     // Assuming AprilTag Tuning has the index 0 and Reflective Tape Tuning the index
     // 1
     public void targetTags() {
-        camera.setPipelineIndex(0);
+        camera.setPipelineIndex(1);
     }
 
     public void targetTape() {
-        camera.setPipelineIndex(1);
+        camera.setPipelineIndex(0);
     }
 
     public double[] getFieldPosition() {
