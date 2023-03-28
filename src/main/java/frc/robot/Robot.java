@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.PneumaticsControlModule;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Chassis;
@@ -42,16 +43,16 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
+    m_chassis.chassisInit();
     m_arm.armInit();
     m_pistons.pistonInit();
+    CameraServer.startAutomaticCapture();
     m_chassis.setGyroStartingAngle();
+    autonomousBasic();
   }
 
   @Override
   public void autonomousPeriodic() {
-    SmartDashboard.putNumber("Steps", autonomusSteps);
-    SmartDashboard.putNumber("AUTONOMOUS GYRO", m_chassis.getAlpha());
-    autonomousBasic();
   }
 
   @Override
@@ -90,55 +91,22 @@ public class Robot extends TimedRobot {
   //AUTONOMOUS
 
   public void autonomousBasic(){
-    
+    m_arm.setThatPosition(-1800);
+    while (m_arm.goThatPosition()) {
+      
+    }
+    m_pistons.tempBwdGripper();
+    Timer.delay(1);
+
+while (m_chassis.isStraight()) {
+  m_chassis.speedRun(true);
+}
+      m_chassis.speedRun(false);
+      while (true) {
+        m_chassis.alignThePitch();
+      }
   }
 
-  public void autonomousComplex(){
-    if(autonomusSteps==0){
-      coordinates = m_vision.getFieldPosition();
-      if(coordinates[0] != 0){autonomusSteps+=1;}
-    }
-    else if(autonomusSteps==1){
-      m_chassis.setTravelVal(-5);
-      autonomusSteps+=1;
-    }
-    else if(autonomusSteps==2){
-      if(m_chassis.travelThisMuch()==true){autonomusSteps+=1;}
-    }
-    else if(autonomusSteps==3){
-      if(true){m_chassis.setRotate90Degrees(1); autonomusSteps+=1;}
-      else if(false){m_chassis.setRotate90Degrees(-1); autonomusSteps+=1;} //deadcode, for now    
-    }
-    else if(autonomusSteps==4){
-      if(m_chassis.completeRotation()==false){autonomusSteps+=1;}
-    }
-    else if(autonomusSteps==5){
-      m_chassis.setTravelVal(2);
-      autonomusSteps+=1;
-    }
-    else if(autonomusSteps==6){
-      if(m_chassis.travelThisMuch()==true){autonomusSteps+=1;}
-    }
-    else if(autonomusSteps==7){
-      if(m_chassis.travelThisMuch()==true){autonomusSteps+=1;}
-    }
-    else if(autonomusSteps==8){
-      if(true){m_chassis.setRotate90Degrees(-1); autonomusSteps+=1;}
-      else if(false){m_chassis.setRotate90Degrees(1); autonomusSteps+=1;} //deadcode, for now    
-    }
-    else if(autonomusSteps==9){
-      if(m_chassis.completeRotation()==false){autonomusSteps+=1;}
-    }
-    else if(autonomusSteps==10){
-      m_chassis.setTravelVal(4);
-      autonomusSteps+=1;
-    }
-    else if(autonomusSteps==11){
-      if(m_chassis.travelThisMuch()==true){autonomusSteps+=1;}
-    }
-    else if(autonomusSteps>11){
-      m_chassis.alignThePitch();
-    }
-  }
+
 
 }

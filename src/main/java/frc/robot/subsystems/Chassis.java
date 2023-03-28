@@ -343,9 +343,29 @@ public class Chassis {
         } else if (gyro.getPitch() < -5) {
             rightMaster.set(0.4);
             leftMaster.set(0.4);
+
         } else {
             rightMaster.set(0);
             leftMaster.set(0);
         }
+    }
+    public boolean isStraight() {
+        boolean result;
+
+        if(gyro.getPitch() < 1.5) result = true;
+        else result = false;
+
+        return result;
+    }
+    public void speedRun(boolean value) {
+            if(value){
+                rightMaster.set(1);
+            leftMaster.set(1);
+        }
+            else{                
+                rightMaster.set(0);
+                leftMaster.set(0);
+            }
+            return;
     }
 }
