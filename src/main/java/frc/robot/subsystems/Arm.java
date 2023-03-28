@@ -1,5 +1,9 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
+import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxRelativeEncoder;
@@ -7,17 +11,20 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.PS4Controller;
+import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ChassisConstants;
 
 public class Arm {
-    private CANSparkMax armMotorLeft = new CANSparkMax(ChassisConstants.idLeftTelescope,MotorType.kBrushless);
+    //private CANSparkMax armMotorLeft = new CANSparkMax(ChassisConstants.idLeftTelescope,MotorType.kBrushed);
     private CANSparkMax armMotorRight = new CANSparkMax(ChassisConstants.idRightTelescope,MotorType.kBrushless);
+    //private TalonSRX armMotorLeft = new TalonSRX(ChassisConstants.idLeftTelescope);
+    private TalonSRX armMotorLeft = new TalonSRX(ChassisConstants.idLeftTelescope);
+    //private RelativeEncoder armLeftEncoder;
 
-    private RelativeEncoder armLeftEncoder;
-    private RelativeEncoder armRightEncoder;
+    //private RelativeEncoder armRightEncoder;
 
-    private PIDController pidController = new PIDController(0.3, 0.000, 0.00);
+    private PIDController pidController = new PIDController(0.3, 0.0015, 0.00);
     // private SparkMaxPIDController rightPid, leftPid;
 
 
@@ -40,14 +47,19 @@ public class Arm {
         // leftPid = armMotorLeft.getPIDController();
         // rightPid = armMotorRight.getPIDController();
 
-        pidController.setTolerance(2);
+        pidController.setTolerance(30);
 
-        armLeftEncoder = armMotorLeft.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
-        armRightEncoder = armMotorRight.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
+        armMotorLeft.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
+        armMotorLeft.setSelectedSensorPosition(0);
+
+        //armLeftEncoder = armMotorLeft.getAbsoluteEncoder()
+        //armRightEncoder = armMotorRight.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, 42);
     }
 
     private int currentPOVVal = -1;
     public void armPeriodic(){
+        if(driverController.getRawButton(14)){armMotorLeft.setSelectedSensorPosition(0);}
+
         if(copilotController.getRawButton(7)){runLeft();} //L2
         else if(copilotController.getRawButton(8)){runRight();} //R2
         else if(copilotController.getRawButton(5)){runLeftReverse();} //L1
@@ -55,10 +67,10 @@ public class Arm {
         else{holdBoth();}
         
         if(driverController.getRawButtonReleased(2)){setThatPosition(0);} //Start Position
-        else if(driverController.getRawButtonReleased(1)){setThatPosition(49.8);}
-        else if(driverController.getRawButtonReleased(3)){setThatPosition(-44);}
+        else if(driverController.getRawButtonReleased(1)){setThatPosition(3150);}
+        else if(driverController.getRawButtonReleased(3)){setThatPosition(-1800);}
 
-        else if(driverController.getRawButtonReleased(4)){setThatPosition(10);}
+        else if(driverController.getRawButtonReleased(4)){setThatPosition(200);}
         // else if(driverController.getRawButtonReleased(2)){setThatPosition(-30);}
         // else if(driverController.getPOV()==0 && currentPOVVal!=0){
         //     currentPOVVal = 0;
@@ -75,8 +87,9 @@ public class Arm {
             goThatPosition();
         }
         
-        SmartDashboard.putNumber("Arm Left E Val", armLeftEncoder.getPosition());
-        SmartDashboard.putNumber("Arm Right E Val", armRightEncoder.getPosition());
+        SmartDashboard.putNumber("Arm Left E Val", armMotorLeft.getSelectedSensorPosition());
+
+        //SmartDashboard.putNumber("Arm Right E Val", armRightEncoder.getPosition());
         SmartDashboard.putBoolean("LoopIsOn", LoopIsOn);
 
     }
@@ -92,17 +105,17 @@ public class Arm {
     }
 
     public void runLeft(){
-        armMotorLeft.set(0.5);
+        armMotorLeft.set(TalonSRXControlMode.PercentOutput,0.7);
         System.out.println("sol ilerici");
     }
 
     public void runLeftReverse(){
-        armMotorLeft.set(-0.5);
+        armMotorLeft.set(TalonSRXControlMode.PercentOutput,-0.7);
         System.out.println("sol gerici");
     }
 
     public void holdBoth(){
-        armMotorLeft.set(0);
+        armMotorLeft.set(TalonSRXControlMode.PercentOutput,0);
         armMotorRight.set(0);
     }
 
@@ -113,17 +126,20 @@ public class Arm {
     }
 
     public boolean goThatPosition(){ //setlerken ipi sal
-        double supposedOutput = pidController.calculate(armLeftEncoder.getPosition());
-        if(supposedOutput > 0.4){supposedOutput = 0.4;}
-        else if(supposedOutput < -0.4){supposedOutput = -0.4;}
-        armMotorLeft.set(supposedOutput);
+        double supposedOutput = pidController.calculate(armMotorLeft.getSelectedSensorPosition());
+        if(supposedOutput > 0.75){supposedOutput = 0.75;}
+        else if(supposedOutput < -0.75){supposedOutput = -0.75;}
+        armMotorLeft.set(TalonSRXControlMode.PercentOutput,supposedOutput);
         //armMotorRight.set(0.1);
-        if(Math.abs(setPoint - armLeftEncoder.getPosition())<3){
+        if(Math.abs(setPoint - armMotorLeft.getSelectedSensorPosition())<160){
             LoopIsOn = false;
-            armMotorLeft.set(0);
+            armMotorLeft.set(TalonSRXControlMode.PercentOutput,0);
             return true;
         }
         return false;
     }
+
+    //AUTONOMOUS
+
 
 }
