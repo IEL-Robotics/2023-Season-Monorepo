@@ -105,9 +105,12 @@ public class Chassis {
             }
         } else {
             // + - CR ekle
-            drive.tankDrive(-driverController.getRawAxis(1) + driverController.getRawAxis(2),
-                    -driverController.getRawAxis(1) - driverController.getRawAxis(2));
-            midMaster.set(driverController.getRawAxis(0));
+            // drive.tankDrive(-driverController.getRawAxis(1) + driverController.getRawAxis(2),
+            //         -driverController.getRawAxis(1) - driverController.getRawAxis(2));
+            // midMaster.set(driverController.getRawAxis(0));
+
+            drive.arcadeDrive(-driverController.getRawAxis(1), driverController.getRawAxis(0));
+            midMaster.set(driverController.getRawAxis(2));
         }
 
         SmartDashboard.putNumber("SGP", SupposedGP);

@@ -18,17 +18,6 @@ public class Constants {
 
     }
 
-    public static class PneumaticsConstants{
-        public static int gripper1Fwd = 1;
-        public static int gripper1Bwd = 0;
-
-        public static int gripper2Fwd = 7;
-        public static int gripper2Bwd = 6;
-
-        public static int ankleFwd = 0;
-        public static int ankleBwd = 0;
-    }
-
     public static class PIDConstants {
         public static double kP = 6e-5;
         public static double kI = 1e-6;

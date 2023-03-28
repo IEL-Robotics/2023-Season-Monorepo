@@ -6,23 +6,18 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants.PneumaticsConstants;
 
 public class Pistons {
-    // private DoubleSolenoid gripper_piston_1 = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, PneumaticsConstants.gripper1Fwd, PneumaticsConstants.gripper1Bwd);
-    // private DoubleSolenoid gripper_piston_2 = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, PneumaticsConstants.gripper2Fwd, PneumaticsConstants.gripper2Bwd);
-    
-    //private DoubleSolenoid ankle_piston = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, PneumaticsConstants.ankleFwd, PneumaticsConstants.ankleBwd);
 
     // private Solenoid gripper_fwd = new Solenoid(PneumaticsModuleType.CTREPCM, 6);
     // private Solenoid gripper_bwd = new Solenoid(PneumaticsModuleType.CTREPCM, 7);
-    private final DoubleSolenoid m_dbl_sld = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 6, 7);
+    private final DoubleSolenoid ankleDSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
+    private final DoubleSolenoid gripDSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 6, 7);
 
+    private PS4Controller driverController;
 
-    private PS4Controller copilotController;
-
-    public Pistons(PS4Controller copilotController){
-        this.copilotController = copilotController;
+    public Pistons(PS4Controller driverController){
+        this.driverController = driverController;
     }
 
     public void pistonInit(){
@@ -30,63 +25,42 @@ public class Pistons {
         SmartDashboard.putBoolean("LEAVE", false);
     }
 
-    // public void grab(){
-    //     SmartDashboard.putBoolean("GRAB", true);
-    //     System.out.println("Grabbed");
-    //     gripper_piston_1.set(Value.kForward);
-    //     gripper_piston_2.set(Value.kForward);
-    // }
-
-    // public void leave(){
-    //     SmartDashboard.putBoolean("LEAVE", true);
-    //     System.out.println("Left");
-    //     gripper_piston_1.set(Value.kReverse);
-    //     gripper_piston_2.set(Value.kReverse);
-    // }
-
-    // // public void hold(){
-    // //     gripper_piston_1.set(Value.kOff);
-    // //     gripper_piston_2.set(Value.kOff);
-    // // }
-
-    // public void gripperToggle(){
-    //     System.out.println("toggled");
-    //     gripper_piston_1.set(Value.kForward);
-    //     gripper_piston_2.set(Value.kForward);
-    // }
-
-    // public void ankleToggle(){
-    //     //ankle_piston.toggle();
-    // }
-
-    // // public void lower(){
-    // //     ankle_piston.set(Value.kReverse);
-    // // }
-
-    // // public void raise(){
-    // //     ankle_piston.set(Value.kForward);
-    // // }
-
-    public void tempFwd(){
-        System.out.println("TEMP FWD");
-        // gripper_fwd.set(true);
-        // gripper_bwd.set(false);
-        m_dbl_sld.set(Value.kForward);
+    public void tempFwdAnkle(){
+        System.out.println("TEMP FWD Ankle");
+        ankleDSolenoid.set(Value.kForward);
     }
 
-    public void tempBwd(){
-        System.out.println("TEMP BWD");
-        // gripper_fwd.set(false);
-        // gripper_bwd.set(true);
-        m_dbl_sld.set(Value.kReverse);
+    public void tempBwdAnkle(){
+        System.out.println("TEMP BWD Ankle");
+        ankleDSolenoid.set(Value.kReverse);
+    }
+
+    public void toggleAnkle(){
+        System.out.println("Toggling Ankle");
+        ankleDSolenoid.toggle();
+    }
+
+    public void tempFwdGripper(){
+        System.out.println("FWD Gripper");
+        gripDSolenoid.set(Value.kForward);
+    }
+
+    public void tempBwdGripper(){
+        System.out.println("BWD Gripper");
+        gripDSolenoid.set(Value.kReverse);
+    }
+
+    public void toggleGripper(){
+        System.out.println("Toggling Gripper");
+        gripDSolenoid.toggle();
     }
 
     public void pistonPeriodic(){
-        // if(copilotController.getRawButtonPressed(2)){grab();}
-        // else if(copilotController.getRawButtonPressed(1)){leave();}
 
-        if(copilotController.getRawButtonPressed(2)){tempFwd();}
-        else if(copilotController.getRawButtonPressed(1)){tempBwd();}
+        if(driverController.getRawButtonPressed(6)){tempFwdGripper();}//Kare
+        else if(driverController.getRawButtonPressed(8)){tempBwdGripper();}//X
+        else if(driverController.getRawButtonPressed(5)){tempFwdAnkle();}//O
+        else if(driverController.getRawButtonPressed(7)){tempBwdAnkle();}//Ucgen
     }
 
 

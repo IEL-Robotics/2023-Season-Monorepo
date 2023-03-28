@@ -17,17 +17,19 @@ public class Arm {
     private RelativeEncoder armLeftEncoder;
     private RelativeEncoder armRightEncoder;
 
-    private PIDController pidController = new PIDController(0.01, 0.000, 0.02);
+    private PIDController pidController = new PIDController(0.3, 0.000, 0.00);
     // private SparkMaxPIDController rightPid, leftPid;
 
 
     private PS4Controller driverController;
+    private PS4Controller copilotController;
 
     private boolean LoopIsOn = false;
     private double setPoint = 0;
 
-    public Arm(PS4Controller driverController){
+    public Arm(PS4Controller driverController, PS4Controller copilotController){
         this.driverController = driverController;
+        this.copilotController = copilotController;
     }
 
     public void armInit(){
@@ -46,31 +48,33 @@ public class Arm {
 
     private int currentPOVVal = -1;
     public void armPeriodic(){
-        if(driverController.getRawButton(7)){runLeft();} //L2
-        else if(driverController.getRawButton(8)){runRight();} //R2
-        else if(driverController.getRawButton(5)){runLeftReverse();} //L1
-        else if(driverController.getRawButton(6)){runRightReverse();}//R1
+        if(copilotController.getRawButton(7)){runLeft();} //L2
+        else if(copilotController.getRawButton(8)){runRight();} //R2
+        else if(copilotController.getRawButton(5)){runLeftReverse();} //L1
+        else if(copilotController.getRawButton(6)){runRightReverse();}//R1
         else{holdBoth();}
+        
+        if(driverController.getRawButtonReleased(2)){setThatPosition(0);} //Start Position
+        else if(driverController.getRawButtonReleased(1)){setThatPosition(49.8);}
+        else if(driverController.getRawButtonReleased(3)){setThatPosition(-44);}
 
-        if(driverController.getRawButtonReleased(3)){setThatPosition(0);} //Start Position
-        else if(driverController.getRawButtonReleased(4)){setThatPosition(-20);}
-        else if(driverController.getRawButtonReleased(1)){setThatPosition(-50);}
-        else if(driverController.getRawButtonReleased(2)){setThatPosition(-30);}
-        else if(driverController.getPOV()==0 && currentPOVVal!=0){
-            currentPOVVal = 0;
-            setThatPosition(-10);}
-        else if(driverController.getPOV()==90 && currentPOVVal!=90){
-            currentPOVVal = 90;
-            setThatPosition(-10);}
-        else if(driverController.getPOV()==270 && currentPOVVal!=270){
-            currentPOVVal = 270;
-            setThatPosition(-10);
-        }
+        else if(driverController.getRawButtonReleased(4)){setThatPosition(10);}
+        // else if(driverController.getRawButtonReleased(2)){setThatPosition(-30);}
+        // else if(driverController.getPOV()==0 && currentPOVVal!=0){
+        //     currentPOVVal = 0;
+        //     setThatPosition(-10);}
+        // else if(driverController.getPOV()==90 && currentPOVVal!=90){
+        //     currentPOVVal = 90;
+        //     setThatPosition(-10);}
+        // else if(driverController.getPOV()==270 && currentPOVVal!=270){
+        //     currentPOVVal = 270;
+        //     setThatPosition(-10);
+        // }
 
         if(LoopIsOn){
             goThatPosition();
         }
-
+        
         SmartDashboard.putNumber("Arm Left E Val", armLeftEncoder.getPosition());
         SmartDashboard.putNumber("Arm Right E Val", armRightEncoder.getPosition());
         SmartDashboard.putBoolean("LoopIsOn", LoopIsOn);
@@ -78,22 +82,22 @@ public class Arm {
     }
 
     public void runRight(){
-        armMotorRight.set(0.45);
+        armMotorRight.set(0.75);
         System.out.println("sağ ilerici");
     }
 
     public void runRightReverse(){
-        armMotorRight.set(-0.45);
+        armMotorRight.set(-0.75);
         System.out.println("sağ gerici");
     }
 
     public void runLeft(){
-        armMotorLeft.set(0.35);
+        armMotorLeft.set(0.5);
         System.out.println("sol ilerici");
     }
 
     public void runLeftReverse(){
-        armMotorLeft.set(-0.35);
+        armMotorLeft.set(-0.5);
         System.out.println("sol gerici");
     }
 
@@ -108,12 +112,18 @@ public class Arm {
         LoopIsOn = true;
     }
 
-    public void goThatPosition(){ //setlerken ipi sal
-        armMotorLeft.set(pidController.calculate(armLeftEncoder.getPosition()));
-        // armMotorRight.set(0.1);
+    public boolean goThatPosition(){ //setlerken ipi sal
+        double supposedOutput = pidController.calculate(armLeftEncoder.getPosition());
+        if(supposedOutput > 0.4){supposedOutput = 0.4;}
+        else if(supposedOutput < -0.4){supposedOutput = -0.4;}
+        armMotorLeft.set(supposedOutput);
+        //armMotorRight.set(0.1);
         if(Math.abs(setPoint - armLeftEncoder.getPosition())<3){
             LoopIsOn = false;
             armMotorLeft.set(0);
+            return true;
         }
+        return false;
     }
+
 }

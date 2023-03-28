@@ -18,7 +18,7 @@ public class Robot extends TimedRobot {
   private PS4Controller copilotController = new PS4Controller(1);
 
   public Chassis m_chassis = new Chassis(driverController);
-  public Arm m_arm = new Arm(copilotController);
+  public Arm m_arm = new Arm(driverController, copilotController);
   public Pistons m_pistons = new Pistons(driverController);
   public Vision m_vision = new Vision();
 
@@ -34,6 +34,7 @@ public class Robot extends TimedRobot {
     m_arm.armInit();
     m_pistons.pistonInit();
     CameraServer.startAutomaticCapture();
+
   }
 
   @Override
@@ -47,7 +48,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     SmartDashboard.putNumber("Steps", autonomusSteps);
-    autonomousBasic();
+    //autonomousBasic();
   }
 
   @Override
@@ -87,17 +88,21 @@ public class Robot extends TimedRobot {
 
   public void autonomousBasic(){
     if(autonomusSteps==0){
-      m_chassis.setTravelVal(1);
+      m_arm.setThatPosition(-44);
       autonomusSteps+=1;
-    }
+    }  
     else if(autonomusSteps==1){
-      if(m_chassis.travelThisMuch()){autonomusSteps+=1;}
+      if(m_arm.goThatPosition()){autonomusSteps+=1;}
     }
     else if(autonomusSteps==2){
-      m_chassis.setTravelVal(-4);
+      m_pistons.tempFwdGripper();
       autonomusSteps+=1;
     }
-    else if(autonomusSteps==3){
+    if(autonomusSteps==3){
+      m_chassis.setTravelVal(-4.5);
+      autonomusSteps+=1;
+    }
+    else if(autonomusSteps==4){
       if(m_chassis.travelThisMuch()){autonomusSteps+=1;}
     }
   }
