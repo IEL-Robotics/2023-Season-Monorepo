@@ -42,13 +42,16 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
+    m_arm.armInit();
+    m_pistons.pistonInit();
     m_chassis.setGyroStartingAngle();
   }
 
   @Override
   public void autonomousPeriodic() {
     SmartDashboard.putNumber("Steps", autonomusSteps);
-    //autonomousBasic();
+    SmartDashboard.putNumber("AUTONOMOUS GYRO", m_chassis.getAlpha());
+    autonomousBasic();
   }
 
   @Override
@@ -87,24 +90,7 @@ public class Robot extends TimedRobot {
   //AUTONOMOUS
 
   public void autonomousBasic(){
-    if(autonomusSteps==0){
-      m_arm.setThatPosition(-44);
-      autonomusSteps+=1;
-    }  
-    else if(autonomusSteps==1){
-      if(m_arm.goThatPosition()){autonomusSteps+=1;}
-    }
-    else if(autonomusSteps==2){
-      m_pistons.tempFwdGripper();
-      autonomusSteps+=1;
-    }
-    if(autonomusSteps==3){
-      m_chassis.setTravelVal(-4.5);
-      autonomusSteps+=1;
-    }
-    else if(autonomusSteps==4){
-      if(m_chassis.travelThisMuch()){autonomusSteps+=1;}
-    }
+    
   }
 
   public void autonomousComplex(){

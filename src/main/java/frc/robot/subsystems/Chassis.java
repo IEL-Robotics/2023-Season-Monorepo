@@ -24,7 +24,7 @@ public class Chassis {
     private CANSparkMax midMaster = new CANSparkMax(ChassisConstants.idMidMaster, MotorType.kBrushless);
     private CANSparkMax midSlave = new CANSparkMax(ChassisConstants.idMidSlave, MotorType.kBrushless);
 
-    private boolean tunaMode = false;
+    private boolean tunaMode = true;
 
     private double CurrentGP = 180;
     private double SupposedGP = 180;
@@ -109,7 +109,7 @@ public class Chassis {
             //         -driverController.getRawAxis(1) - driverController.getRawAxis(2));
             // midMaster.set(driverController.getRawAxis(0));
 
-            drive.arcadeDrive(-driverController.getRawAxis(1), driverController.getRawAxis(0));
+            drive.arcadeDrive(-driverController.getRawAxis(1), -driverController.getRawAxis(0));
             midMaster.set(driverController.getRawAxis(2));
         }
 
