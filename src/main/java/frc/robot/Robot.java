@@ -1,5 +1,7 @@
 package frc.robot;
 
+import java.io.Console;
+
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PS4Controller;
@@ -26,7 +28,7 @@ public class Robot extends TimedRobot {
   private final Compressor m_compressor = new Compressor(PneumaticsModuleType.CTREPCM);
   private final PneumaticsControlModule m_pcm = new PneumaticsControlModule();
 
-  private int autonomusSteps = 1;
+  private int autonomusSteps = 0;
   private double[] coordinates = {0, 0, 0};
 
   @Override
@@ -92,11 +94,15 @@ public class Robot extends TimedRobot {
 
   public void autonomousBasic(){
     m_arm.setThatPosition(-1800);
+    System.out.println("1");
     while (m_arm.goThatPosition()) {
-      
+      Timer.delay(0.05);
+      System.out.println("2");
     }
+    System.out.println("3");
     m_pistons.tempBwdGripper();
     Timer.delay(1);
+    System.out.println("4");
 
 while (m_chassis.isStraight()) {
   m_chassis.speedRun(true);

@@ -127,8 +127,8 @@ public class Arm {
 
     public boolean goThatPosition(){ //setlerken ipi sal
         double supposedOutput = pidController.calculate(armMotorLeft.getSelectedSensorPosition());
-        if(supposedOutput > 0.75){supposedOutput = 0.75;}
-        else if(supposedOutput < -0.75){supposedOutput = -0.75;}
+        if(supposedOutput > 0.3){supposedOutput = 0.3;}
+        else if(supposedOutput < -0.3){supposedOutput = -0.3;}
         armMotorLeft.set(TalonSRXControlMode.PercentOutput,supposedOutput);
         //armMotorRight.set(0.1);
         if(Math.abs(setPoint - armMotorLeft.getSelectedSensorPosition())<160){
