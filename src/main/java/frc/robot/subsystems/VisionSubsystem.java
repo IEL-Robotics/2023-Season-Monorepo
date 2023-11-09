@@ -47,8 +47,6 @@ public class VisionSubsystem {
         targetTags();
     }
 
-    // Assuming AprilTag Tuning has the index 0 and Reflective Tape Tuning the index
-    // 1
     public void targetTags() {
         camera.setPipelineIndex(0);
     }
@@ -57,7 +55,7 @@ public class VisionSubsystem {
         camera.setPipelineIndex(1);
     }
     
-    public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
+    public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) { 
       photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
       return photonPoseEstimator.update();
   }
@@ -69,18 +67,17 @@ public class VisionSubsystem {
             if (target.getFiducialId() != -1) {
                 robotPose = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(),
                         aprilTagFieldLayout.getTagPose(target.getFiducialId()).get(), camera2Robot);
-                x = robotPose.getX();
-                y = robotPose.getY();
+                x = robotPose.getTranslation().getX();
+                y = robotPose.getTranslation().getY();
                 angle = robotPose.getRotation().getAngle();
 
                 SmartDashboard.putNumber("AprilTag ID:", target.getFiducialId());
-                // SmartDashboard.putNumber("VISION X Pos.", x);
-                // SmartDashboard.putNumber("VISION Y Pos.", y);
-                // SmartDashboard.putNumber("VISION Angle", angle);// smartboard correct?
             }
         }
 
-        values[0] = x;values[1]=y;values[2] = angle;
+        values[0] = x;
+        values[1]=y;
+        values[2] = angle;
 
         SmartDashboard.putNumber("New Tag X", values[0]);
         SmartDashboard.putNumber("New Tag Y",  values[1]);
@@ -98,8 +95,8 @@ public class VisionSubsystem {
         aprilTagFieldLayout.getTagPose(target.getFiducialId()).get(), camera2Robot).getX());
         SmartDashboard.putNumber("DynamicY", PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(),
         aprilTagFieldLayout.getTagPose(target.getFiducialId()).get(), camera2Robot).getY());
-        SmartDashboard.putNumber("GBCTT X", target.getBestCameraToTarget().getX());
-        SmartDashboard.putNumber("GBCTT Y", target.getBestCameraToTarget().getY());
+        SmartDashboard.putNumber("GBCTT X", target.getBestCameraToTarget().getTranslation().getX());
+        SmartDashboard.putNumber("GBCTT Y", target.getBestCameraToTarget().getTranslation().getY());
 
         return target.getFiducialId();
 

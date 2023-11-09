@@ -32,12 +32,12 @@ public class TeleopDrive extends CommandBase {
        m_chassis.m_drive.setMaxOutput(ChassisConstants.higherOutput);
      }
 
-    SmartDashboard.putNumber("X Value Controller", joystick.getLeftX());
-    SmartDashboard.putNumber("Y Value Controller", joystick.getLeftY());
-    SmartDashboard.putBoolean("L1", joystick.getL1Button());
-    SmartDashboard.putNumber("L2", joystick.getL2Axis());
-    SmartDashboard.putBoolean("R1", joystick.getR1Button());
-    SmartDashboard.putNumber("R2", joystick.getR2Axis());
+    // SmartDashboard.putNumber("X Value Controller", joystick.getLeftX());
+    // SmartDashboard.putNumber("Y Value Controller", joystick.getLeftY());
+    // SmartDashboard.putBoolean("L1", joystick.getL1Button());
+    // SmartDashboard.putNumber("L2", joystick.getL2Axis());
+    // SmartDashboard.putBoolean("R1", joystick.getR1Button());
+    // SmartDashboard.putNumber("R2", joystick.getR2Axis());
 
     //m_chassis.m_drive.arcadeDrive(-joystick.getRawAxis(1), -joystick.getRawAxis(0));
 

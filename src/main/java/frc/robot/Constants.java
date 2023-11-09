@@ -20,4 +20,11 @@ public final class Constants {
     public static double kMaxOutput = 1;
     public static double kMinOutput = -1;
 }
+
+  public static class ArmConstants {
+    public final static int idRightTelescope = 2;
+    public final static int idLeftTelescope = 55;
+}
+
+
 }

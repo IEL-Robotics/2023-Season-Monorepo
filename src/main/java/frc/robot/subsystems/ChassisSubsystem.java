@@ -80,14 +80,14 @@ public class ChassisSubsystem extends SubsystemBase {
     rightPid.setOutputRange(PIDConstants.kMinOutput, PIDConstants.kMaxOutput);
 
     // Display
-    SmartDashboard.putNumber("P Gain", PIDConstants.kP);
-    SmartDashboard.putNumber("I Gain", PIDConstants.kI);
-    SmartDashboard.putNumber("D Gain", PIDConstants.kD);
-    SmartDashboard.putNumber("I Zone", PIDConstants.kIz);
-    SmartDashboard.putNumber("Feed Forward", PIDConstants.kFF);
-    SmartDashboard.putNumber("Max Output", PIDConstants.kMaxOutput);
-    SmartDashboard.putNumber("Min Output", PIDConstants.kMinOutput);
-    SmartDashboard.putNumber("Set Rotations", 0);
+    // SmartDashboard.putNumber("P Gain", PIDConstants.kP);
+    // SmartDashboard.putNumber("I Gain", PIDConstants.kI);
+    // SmartDashboard.putNumber("D Gain", PIDConstants.kD);
+    // SmartDashboard.putNumber("I Zone", PIDConstants.kIz);
+    // SmartDashboard.putNumber("Feed Forward", PIDConstants.kFF);
+    // SmartDashboard.putNumber("Max Output", PIDConstants.kMaxOutput);
+    // SmartDashboard.putNumber("Min Output", PIDConstants.kMinOutput);
+    // SmartDashboard.putNumber("Set Rotations", 0);
 
     leftPid.setFeedbackDevice(leftEncoder);
     rightPid.setFeedbackDevice(rightEncoder);
@@ -140,14 +140,14 @@ public class ChassisSubsystem extends SubsystemBase {
     this.m_drive.feed();
 
     // Display
-    SmartDashboard.putNumber("P Gain", PIDConstants.kP);
-    SmartDashboard.putNumber("I Gain", PIDConstants.kI);
-    SmartDashboard.putNumber("D Gain", PIDConstants.kD);
-    SmartDashboard.putNumber("I Zone", PIDConstants.kIz);
-    SmartDashboard.putNumber("Feed Forward", PIDConstants.kFF);
-    SmartDashboard.putNumber("Max Output", PIDConstants.kMaxOutput);
-    SmartDashboard.putNumber("Min Output", PIDConstants.kMinOutput);
-    SmartDashboard.putNumber("Set Rotations", 0);
+    // SmartDashboard.putNumber("P Gain", PIDConstants.kP);
+    // SmartDashboard.putNumber("I Gain", PIDConstants.kI);
+    // SmartDashboard.putNumber("D Gain", PIDConstants.kD);
+    // SmartDashboard.putNumber("I Zone", PIDConstants.kIz);
+    // SmartDashboard.putNumber("Feed Forward", PIDConstants.kFF);
+    // SmartDashboard.putNumber("Max Output", PIDConstants.kMaxOutput);
+    // SmartDashboard.putNumber("Min Output", PIDConstants.kMinOutput);
+    // SmartDashboard.putNumber("Set Rotations", 0);
 
   }
 
