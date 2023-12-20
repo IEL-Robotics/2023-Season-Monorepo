@@ -82,7 +82,7 @@ public class Robot extends TimedRobot {
     m_teleopCommand = m_robotContainer.getTeleopCommand();
     if (m_teleopCommand != null) {
       m_teleopCommand.schedule();
-      this.m_robotContainer.m_chassis.setDefaultCommand(m_teleopCommand);
+      this.m_robotContainer.swerveSubsystem.setDefaultCommand(m_teleopCommand);
     }
   }
 
