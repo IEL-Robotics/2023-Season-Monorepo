@@ -45,6 +45,7 @@ public final class Constants {
   }
   public static class SwerveConstants{
     public static final class ModuleConstants {
+        // !TODO: check wheel diameters and gear ratios. 
         public static final double kWheelDiameterMeters = Units.inchesToMeters(4);
         public static final double kDriveMotorGearRatio = 1 / 5.8462;
         public static final double kTurningMotorGearRatio = 1 / 18.0;
